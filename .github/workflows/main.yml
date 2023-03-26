@@ -31,7 +31,8 @@ jobs:
       
     - name: Install other dependencies
       run: |
-        Rscript -e "install.packages(c('BH','DT','R6','RColorBrewer','Rcpp','anytime','base64enc','brio','bslib','cachem'))"
+        Rscript -e "install.packages('renv')"
+        Rscript -e "renv::restore()"
 
     - name: Deploy to shinyapps.io
       run: |
