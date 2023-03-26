@@ -28,8 +28,7 @@ jobs:
 
     - name: Install R dependencies
       run: |
-        install.packages("rsconnect")
-        remotes::install_deps(dependencies = TRUE)
+        Rscript -e "install.packages('rsconnect')"
 
     - name: Deploy to shinyapps.io
       run: |
