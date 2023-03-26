@@ -26,9 +26,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
 
-    - name: Install R dependencies
+    - name: Install rsconnect
+      run: Rscript -e "install.packages('rsconnect')"
+      
+    - name: Install other dependencies
       run: |
-        Rscript -e "install.packages('rsconnect')"
+        Rscript -e "install.packages(c('BH','DT','R6','RColorBrewer','Rcpp','anytime','base64enc','brio','bslib','cachem'))"
 
     - name: Deploy to shinyapps.io
       run: |
