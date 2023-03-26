@@ -1,0 +1,25 @@
+Package: PlacidoApp
+Title: Shiny Application for Quality Control Calculations Based on Spanish Royal Decree 1801/2008
+Version: 0.0.1
+Authors@R: c(person("David Leo Acedo", "Developer", role = c("aut", "cre"),
+                     email = "david.leoacedo@gmail.com"))
+Description: PlacidoApp is a package that provides a Shiny application for performing quality control calculations in accordance with Spanish Royal Decree 1801/2008, dated November 3rd. This regulation establishes rules pertaining to nominal quantities for prepackaged products and the control of their actual content in Spain. The application allows users to input prepackaged product data and determine compliance with the standards set forth in the Royal Decree. Additionally, the application provides visualizations and summaries to facilitate the interpretation of the results.
+License: GPL 3
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/DavidALeo/PlacidoProject
+BugReports: https://github.com/DavidALeo/PlacidoProject/issues
+RoxygenNote: 7.2.3
+Imports: 
+    shiny,
+    shinythemes,
+    dplyr,
+    ggplot2,
+    DT,
+    testthat,
+    httptest,
+    pkgload,
+    rsconnect,
+    shinyWidgets
+Depends:
+  R (>= 2.10)
