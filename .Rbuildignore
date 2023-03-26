@@ -1,2 +1,4 @@
+^renv$
+^renv\.lock$
 ^monthApp\.Rproj$
 ^\.Rproj\.user$

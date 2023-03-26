@@ -30,5 +30,5 @@ server <- function(input, output, session) {
 }
 
 # Ejecuta la aplicación Shiny
-# pkgload::load_all("R")
+pkgload::load_all(".")
 shinyApp(ui, server)
