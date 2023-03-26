@@ -28,7 +28,6 @@ jobs:
 
     - name: Install R dependencies
       run: |
-        install.packages("remotes")
         install.packages("rsconnect")
         remotes::install_deps(dependencies = TRUE)
 
