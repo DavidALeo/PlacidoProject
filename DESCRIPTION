@@ -13,6 +13,8 @@ RoxygenNote: 7.2.3
 Imports: 
     shiny,
     shinythemes,
+    thematic,
+    bslib,
     dplyr,
     ggplot2,
     DT,
