@@ -1,3 +1,11 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+library(testthat)
+library(shinytest)
+
+test_that("ejemplo", {
+  # Create sample data
+  expect_equal(1, 1)
+})
+
+test_that("resumenModuleUI() creates expected HTML", {
+  expect_snapshot(resumenModuleUI("a","b"))
 })

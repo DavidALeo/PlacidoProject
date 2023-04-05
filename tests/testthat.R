@@ -8,5 +8,12 @@
 
 library(testthat)
 library(PlacidoApp)
+library(shiny)
+library(dplyr)
+library(ggplot2)
+library(DT)
+library(shinythemes)
+library(bslib)
 
+#shinytest2::test_app()
 test_check("PlacidoApp")
