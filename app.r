@@ -3,30 +3,65 @@ library(dplyr)
 library(ggplot2)
 library(DT)
 library(shinythemes)
+library(bslib)
 Sys.setlocale("LC_ALL", "es_ES.UTF-8")
 Sys.setenv(LANGUAGE = "es")
+thematic::thematic_shiny(font = "auto")
 
 
 # Define la GUI
-ui <- fluidPage(theme = shinytheme("superhero"),
-                # Incluir la barra lateral y el panel principal en la GUI
-                sidebarLayout(
-                  sidebar,
-                  main_panel
-                )
+ui <- fluidPage(
+  navbarPage(
+    title = "PlacidoApp",
+    tabPanel(title = "Resumen",resumenModuleUI("resumen","CSV file")),
+    tabPanel(title = "Muestreo"),
+    tabPanel(title = "Análisis de no-conformidades"),
+    tabPanel(title = "Análisis de la media"),
+    tabPanel(title = "Informes"),
+    navbarMenu(
+      title = "Más",
+      tabPanel(title = "Summary"),
+      "----",
+      "Section header",
+      tabPanel(title = "Table")
+    ),
+    windowTitle = "PlacidoApp"
+  ),
+
+  theme = bs_theme(
+    version = 5,
+    bg = "#D8D8D8",
+    fg = "#245953",
+    primary = "#408E91",
+    secondary = "#E49393",
+    base_font = font_collection(
+      font_google(family = "Nunito Sans"),
+      "-apple-system",
+      "BlinkMacSystemFont",
+      "Segoe UI",
+      font_google(family = "Roboto"),
+      "Helvetica Neue",
+      "Arial",
+      "sans-serif",
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      "Segoe UI Symbol"
+    )
+  )
 )
 
 # Define el servidor de la aplicación (Server)
 server <- function(input, output, session) {
-  # Lee los datos del archivo CSV seleccionado
-  data <- reactive({
-    req(input$file)
-    read.csv(input$file$datapath)
-  })
+  # bs_themer()
+
+  #Lee el fichero de tamaños
+  sizes_df <- read.csv("data/sample_sizes.csv",header = TRUE)
 
   # Llama a las funciones del servidor de la barra lateral y el panel principal
-  sidebar_server(input, output, session, data)
-  main_panel_server(input, output, session, data)
+  premisesReactive <- resumenModuleServer("resumen", sizes_df)
+  observe({
+    cat("(Server) El valor de BatchSize es ", premisesReactive$sampleSizes()$nonCon1, "\n")
+  })
 }
 
 # Ejecuta la aplicación Shiny
