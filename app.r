@@ -54,9 +54,6 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   # bs_themer()
 
-  #Lee el fichero de tamaños
-  sizes_df <- read.csv("data/sample_sizes.csv",header = TRUE)
-
   # Llama a las funciones del servidor de la barra lateral y el panel principal
   premisesReactive <- resumenModuleServer("resumen", sizes_df)
   observe({

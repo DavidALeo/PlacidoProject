@@ -37,8 +37,11 @@ resumenModuleServer <- function(id, sizes_df) {
           slice(1)
 
         # Extrae los valores correspondientes
-        list(nonCon1=sizes_row$sample1_size,
-             nonCon2=sizes_row$sample2_size)})
+        list(
+          nonCon1 = sizes_row$sample1_size,
+          nonCon2 = sizes_row$sample2_size
+        )
+      })
 
       observe({
         if (length(sampleSizes()$nonCon1) == 0) {
@@ -62,10 +65,11 @@ resumenModuleServer <- function(id, sizes_df) {
         paste("La cantidad nominal es:", input$LabeledQuantity)
       })
 
-      return(list(BatchSize = reactive(input$BatchSize),
-                  LabeledQuantity= reactive(input$LabeledQuantity),
-                  sampleSizes = sampleSizes
-            ))
+      return(list(
+        BatchSize = reactive(input$BatchSize),
+        LabeledQuantity = reactive(input$LabeledQuantity),
+        sampleSizes = sampleSizes
+      ))
     }
   )
 }
