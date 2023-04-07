@@ -34,5 +34,5 @@ jobs:
           SERVER: shinyapps.io # server to deploy
         run: |
           rsconnect::setAccountInfo(name='dleo', token=Sys.getenv('SHINYAPPS_TOKEN'), secret=Sys.getenv('SHINYAPPS_SECRET'))
-          rsconnect::deployApp(appName = "${{ env.APPNAME }}", account = "${{ env.ACCOUNT }}", server = "${{ env.SERVER }}")
+          rsconnect::deployApp('.', appName = 'PlacidoProject', launch.browser = FALSE)
         shell: Rscript {0}
