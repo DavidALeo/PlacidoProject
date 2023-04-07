@@ -1,4 +1,0 @@
-batch_size_min,batch_size_max,sample1_size,sample2_size
-100,500,30,30
-501,3200,50,50
-3201,inf,80,80
