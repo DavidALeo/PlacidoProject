@@ -8,7 +8,7 @@
 #'
 #' @importFrom shiny NS tagList
 #' @import dplyr
-mod_overview_ui <- function(id){
+mod_overview_ui <- function(id) {
   ns <- NS(id)
   sidebarLayout(
     sidebarPanel(
@@ -37,13 +37,13 @@ mod_overview_ui <- function(id){
 #' overview Server Functions
 #'
 #' @noRd
-mod_overview_server <- function(id){
-  moduleServer( id, function(input, output, session){
+mod_overview_server <- function(id) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    sampleSizes <- reactive({
+    sample_sizes <- reactive({
       sizes_row <- sizes_df %>%
-        filter(input$BatchSize >= batch_size_min, input$BatchSize <= batch_size_max) %>%
+        filter(input$BatchSize >= .data$batch_size_min, input$BatchSize <= .data$batch_size_max) %>%
         slice(1)
 
       # Extrae los valores correspondientes
@@ -61,7 +61,7 @@ mod_overview_server <- function(id){
     })
 
     observe({
-      if ((length(sampleSizes()$nonCon1) == 0) || sampleSizes()$nonCon1 == 0) {
+      if ((length(sample_sizes()$nonCon1) == 0) || sample_sizes()$nonCon1 == 0) {
         output$textualExplanation <- renderText({
           paste("El tamaño del lote es demasiado pequeño.")
         })
@@ -69,7 +69,7 @@ mod_overview_server <- function(id){
         output$textualExplanation <- renderText({
           paste(
             "Para un tamaño de lote de ", tags$span(class = "badge bg-secondary", input$BatchSize), "unidades, corresponde un tamaño de muestra inicial de ",
-            tags$span(class = "badge bg-secondary", sampleSizes()$nonCon1)
+            tags$span(class = "badge bg-secondary", sample_sizes()$nonCon1)
           )
         })
       }
@@ -85,7 +85,7 @@ mod_overview_server <- function(id){
     return(list(
       BatchSize = reactive(input$BatchSize),
       LabeledQuantity = reactive(input$LabeledQuantity),
-      sampleSizes = sampleSizes
+      sample_sizes = sample_sizes
     ))
   })
 }
