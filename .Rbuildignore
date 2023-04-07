@@ -2,3 +2,4 @@
 ^renv\.lock$
 ^monthApp\.Rproj$
 ^\.Rproj\.user$
+_\.new\.png$

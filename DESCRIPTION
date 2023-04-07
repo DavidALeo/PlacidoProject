@@ -20,6 +20,7 @@ Imports:
     DT,
     testthat,
     httptest,
+    shinytest2,
     pkgload,
     rsconnect,
     shinyWidgets

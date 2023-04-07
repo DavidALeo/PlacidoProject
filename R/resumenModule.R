@@ -37,14 +37,21 @@ resumenModuleServer <- function(id, sizes_df) {
           slice(1)
 
         # Extrae los valores correspondientes
-        list(
-          nonCon1 = sizes_row$sample1_size,
-          nonCon2 = sizes_row$sample2_size
-        )
+        if (length(sizes_row) == 0) {
+          list(
+            nonCon1 = 0,
+            nonCon2 = 0
+          )
+        } else {
+          list(
+            nonCon1 = sizes_row$sample1_size,
+            nonCon2 = sizes_row$sample2_size
+          )
+        }
       })
 
       observe({
-        if (length(sampleSizes()$nonCon1) == 0) {
+        if (sampleSizes()$nonCon1 == 0) {
           output$textualExplanation <- renderText({
             paste("El tamaño del lote es demasiado pequeño.")
           })
