@@ -32,6 +32,8 @@ jobs:
           APPNAME: PlacidoProject
           ACCOUNT: dleo
           SERVER: shinyapps.io # server to deploy
+          SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
+          SHINYAPPS_TOKEN: ${{ secrets.SHINYAPPS_TOKEN }}
         run: |
           rsconnect::setAccountInfo(name='dleo', token=Sys.getenv('SHINYAPPS_TOKEN'), secret=Sys.getenv('SHINYAPPS_SECRET'))
           rsconnect::deployApp('.', appName = 'PlacidoProject', launch.browser = FALSE)
