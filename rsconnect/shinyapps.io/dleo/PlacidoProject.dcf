@@ -1,0 +1,13 @@
+name: PlacidoProject
+title: PlacidoProject
+username:
+account: dleo
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8634323
+bundleId: 7063274
+url: https://dleo.shinyapps.io/placidoproject/
+when: 1680911203.29925
+lastSyncTime: 1680911203.29926
+asMultiple: FALSE
+asStatic: FALSE
