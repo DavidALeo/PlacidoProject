@@ -6,34 +6,47 @@
 #'
 #' @noRd
 #'
-#' @importFrom shiny NS tagList
+#' @importFrom shiny NS tagList icon
+#' @importFrom plotly renderPlotly plotlyOutput
 #' @importFrom bslib card_body_fill
+#' @importFrom DT DTOutput renderDT datatable formatStyle styleEqual
 #' @import dplyr
+#' @importFrom purrr map_chr
+#' @importFrom utils read.csv
 mod_overview_ui <- function(id) {
   ns <- NS(id)
   sidebarLayout(
     sidebarPanel(
-      card_body_fill(
-        h2("Resumen"),
-        "Datos necesarios para continuar:",
-        numericInput(
-          inputId = ns("BatchSize"),
-          label = "Tamaño del lote",
-          value = 0
-        ),
-        numericInput(
-          inputId =  ns("LabeledQuantity"),
-          label = "Cantidad nominal",
-          value = 0
-        )
-      )
+      h2("Resumen"),
+      "Datos necesarios para continuar:",
+      numericInput(
+        inputId = ns("BatchSize"),
+        label = "Tamaño del lote",
+        value = 0
+      ),
+      numericInput(
+        inputId =  ns("LabeledQuantity"),
+        label = "Cantidad nominal",
+        value = 0
+      ),
+      fileInput(ns("first_sample"), "Selecciona un fichero"),
+      selectInput(ns("first_noncon_column"), "Selecciona columna de valores", c())
     ),
     mainPanel(
       h2("Resumen"),
       htmlOutput(ns("textualExplanation")),
+      h3("Datos"),
+      DTOutput(ns("first_sample_table")),
+      h3("Resultado"),
+      htmlOutput(ns("first_noncon_results_text")),
+      DTOutput(ns("first_noncon_results_table")),
+      plotlyOutput(ns("first_control_plot"))
     )
   )
 }
+
+yuhu_df <- data.frame(values = c(10.2, 10.5, 10.1, 10.3, 9.9, 10.6, 10.2, 10.3, 10.4, 10.5),
+                      category = c("A", "B", "A", "C", "B", "C", "A", "B", "C", "A"))
 
 #' overview Server Functions
 #'
@@ -42,57 +55,119 @@ mod_overview_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    sample_sizes <- reactive({
-      sizes_row <- sizes_df %>%
-        filter(input$BatchSize >= .data$batch_size_min, input$BatchSize <= .data$batch_size_max) %>%
-        slice(1)
-
-      # Extrae los valores correspondientes
-      if (length(sizes_row) == 0) {
-        list(
-          nonCon1 = 0,
-          nonCon2 = 0
-        )
-      } else {
-        list(
-          nonCon1 = sizes_row$sample1_size,
-          nonCon2 = sizes_row$sample2_size
-        )
-      }
-    })
-
     observe({
-      if ((length(sample_sizes()$nonCon1) == 0) || sample_sizes()$nonCon1 == 0) {
-        output$textualExplanation <- renderText({
-          paste("El tamaño del lote es demasiado pequeño.")
-        })
-      } else {
+      tryCatch(expr = {
+        sample_size <- get_sample_sizes(input$BatchSize,"first")
         output$textualExplanation <- renderText({
           paste(
             "Para un tamaño de lote de ", tags$span(class = "badge bg-secondary", input$BatchSize), "unidades, corresponde un tamaño de muestra inicial de ",
-            tags$span(class = "badge bg-secondary", sample_sizes()$nonCon1)
+            tags$span(class = "badge bg-secondary", sample_size)
+          )
+        })},error = function(e){
+                 output$textualExplanation <- renderText({
+                   paste("El tamaño del lote es demasiado pequeño.")
+                 })
+               }
+      )
+    }) %>% bindEvent(input$BatchSize)
+
+    first_noncon_sample <- reactive({
+      req(input$first_sample)
+      read.csv(file = input$first_sample$datapath)
+    }) %>% bindEvent(input$first_sample)
+
+    observe({
+      output$first_sample_table <- renderDT(first_noncon_sample(), server = FALSE)
+    }) %>% bindEvent(first_noncon_sample())
+
+    observe({
+      output$first_sample_table <- renderDT({
+        DT::datatable(first_noncon_sample(),
+          options = list(
+            pageLength = 5
+          ),
+          rownames = FALSE,selection = 'none',
+           extensions = 'Responsive'
+        ) %>% formatStyle(input$first_noncon_column,
+          color = "red", backgroundColor = "orange", fontWeight = "bold"
+        )
+      },server = FALSE)
+    }) %>% bindEvent(input$first_noncon_column)
+
+    observe({
+      updateSelectInput(session, "first_noncon_column", "Selecciona columna de valores",
+        choices = first_noncon_sample() %>%
+          select_if(is.numeric) %>%
+          names()
+      )
+    }) %>% bindEvent(first_noncon_sample())
+
+    observe({
+      req(first_noncon_sample())
+      req(input$BatchSize)
+      req(input$LabeledQuantity)
+      req(input$first_noncon_column)
+
+      tryCatch(expr = {
+        results <- first_noncon_analysis(first_noncon_sample(), input$first_noncon_column, input$LabeledQuantity, input$BatchSize)
+        if (results$decision == "Accept"){
+          class <- "alert alert-success"
+          msg <- "La muestra ha superado el análisis de no conformidades. El lote se acepta."
+        } else if (results$decision == "Reject") {
+          class <- "alert alert-danger"
+          msg <- "La muestra no ha superado el análisis de no conformidades. Es necesario un segundo análisis."
+        } else {
+          class <- "alert alert-warning"
+          msg <- "La muestra no ha superado el análisis de no conformidades. El lote se rechaza."
+        }
+        output$first_noncon_results_text <- renderText({
+          paste(
+            tags$div(class = class, role = "alert", msg)
           )
         })
-      }
-    })
 
-    output$salida1 <- renderText({
-      paste("El tamaño del lote es:", input$BatchSize)
-    })
-    output$salida2 <- renderText({
-      paste("La cantidad nominal es:", input$LabeledQuantity)
-    })
+        get_icon <- function (target_status){
+          icons <- data.frame(status = c("Aceptable", "Non-conformity", "Rejection"),
+                              icon = c("ok-circle", "remove-circle", "ban-circle"))
+          icons %>%
+            filter(.data$status == target_status) %>%
+            pull(icon)
+        }
 
-    return(list(
-      BatchSize = reactive(input$BatchSize),
-      LabeledQuantity = reactive(input$LabeledQuantity),
-      sample_sizes = sample_sizes
-    ))
+        output$first_noncon_results_table <- renderDT({
+          data <- results$df %>%
+            mutate(icon = map_chr(.data$status, ~as.character(icon(get_icon(.x), lib = "glyphicon"))))
+          column_names = names(data)
+          column_names[which(column_names == "icon")] <- ""
+          DT::datatable(data,
+                        options = list(
+                          pageLength = 5
+                        ),
+                        rownames = FALSE,
+                        colnames = column_names,
+                        selection = 'none',
+                        extensions = 'Responsive',
+                        escape = FALSE
+          ) %>% formatStyle("status",
+                            backgroundColor = styleEqual(c("Aceptable", "Non-conformity", "Rejection"), c('green','yellow', 'red'))
+          )
+        },server = FALSE)
+
+        output$first_control_plot = renderPlotly({
+          results$plot
+        })
+        },error = function(e){
+          if (e$message == "Batch size is outside the range of possible values."){
+            output$first_noncon_results_text <- renderText({
+              paste("El tamaño del lote es demasiado pequeño.")
+            })
+          } else {
+            output$first_noncon_results_text <- renderText({
+              paste("El tamaño de la muestra introducida no corresponde con la necesaria.")
+            })
+          }
+        }
+      )
+    })
   })
 }
-
-## To be copied in the UI
-# mod_overview_ui("overview_1")
-
-## To be copied in the server
-# mod_overview_server("overview_1")

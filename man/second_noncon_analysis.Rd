@@ -41,7 +41,7 @@ whether the batch should be accepted or rejected.
 \examples{
 first_df <- data.frame(value1 = c(rep(100, 25),c(99, 99, 99, 99, 91)))
 second_df <- data.frame(value2 = c(rep(100, 25),c(99, 99, 99, 99, 91)))
-result <- first_noncon_analysis(first_df, "value1", second_df, "value2", 100, 100)
+result <- second_noncon_analysis(first_df, "value1", second_df, "value2", 100, 100)
 result$decision
 result$df
 }

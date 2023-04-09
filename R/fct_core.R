@@ -198,7 +198,9 @@ first_noncon_analysis <- function(df, col_name, nominal_quantity, batch_size) {
     decision <- "Second analysis"
   }
 
-  return(list(decision = decision, df = df))
+  return(list(decision = decision,
+              df = df,
+              plot = get_analysis_plot(df, col_name, "status", nominal_quantity, noncon_thres, noncon_limit)))
 }
 
 #' Perform Second Non-Conformity Analysis on Two Sample Data Sets
@@ -225,7 +227,7 @@ first_noncon_analysis <- function(df, col_name, nominal_quantity, batch_size) {
 #' @examples
 #' first_df <- data.frame(value1 = c(rep(100, 25),c(99, 99, 99, 99, 91)))
 #' second_df <- data.frame(value2 = c(rep(100, 25),c(99, 99, 99, 99, 91)))
-#' result <- first_noncon_analysis(first_df, "value1", second_df, "value2", 100, 100)
+#' result <- second_noncon_analysis(first_df, "value1", second_df, "value2", 100, 100)
 #' result$decision
 #' result$df
 second_noncon_analysis <- function(first_analysis_df, first_analysis_col_name, second_analysis_df, second_analysis_col_name, nominal_quantity, batch_size) {
@@ -248,11 +250,9 @@ second_noncon_analysis <- function(first_analysis_df, first_analysis_col_name, s
 
   #Combine samples
   df <- bind_rows(
-    first_analysis_df %>% mutate(sample = "First sample"),
-    second_analysis_df %>% mutate(sample = "Second sample")
-  ) %>%
-    select(values = c(all_of(first_analysis_col_name), all_of(second_analysis_col_name)), sample)
-
+    first_analysis_df %>% mutate(sample = "First sample", values = .data[[first_analysis_col_name]]),
+    second_analysis_df %>% mutate(sample = "Second sample", values = .data[[second_analysis_col_name]])
+)
   # Calculate non-conformities and rejection values
   df$status <- case_when(
     df[["values"]] < noncon_limit ~ "Rejection",
@@ -284,7 +284,9 @@ second_noncon_analysis <- function(first_analysis_df, first_analysis_col_name, s
     decision <- "Accept"
   }
 
-  return(list(decision = decision, first_analysis_df = first_analysis_df, second_analysis_df = second_analysis_df))
+  return(list(decision = decision,
+              first_analysis_df = first_analysis_df,
+              second_analysis_df = second_analysis_df))
 }
 
 #' Calculate the standard deviation estimate of a column in a data frame
@@ -367,4 +369,50 @@ mean_analysis <- function(df, col_name, batch_size, nominal_quantity) {
   } else {
     return("Reject")
   }
+}
+
+#' Create an interactive control chart using sample data and categorical column
+#'
+#' This function uses sample data, a value column, and a categorical column to create an interactive control chart using ggplot2 and plotly. The points on the chart will be colored according to the categorical values. The control line and warning limit are drawn on the chart.
+#'
+#' @param df A dataframe containing the sample data to be analyzed
+#' @param value_column A string representing the name of the column containing the values to be analyzed
+#' @param cat_column A string representing the name of the categorical column used to color the points
+#' @param target_value A numeric value indicating the control target value
+#' @param limit A numeric value indicating the control limit
+#' @param hard_limit A numeric value indicating the warning limit
+#'
+#' @return An interactive control chart using plotly
+#'
+#' @examples
+#' # Create a sample dataframe
+#' df <- data.frame(values = c(10.2, 10.5, 10.1, 10.3, 9.9, 10.6, 10.2, 10.3, 10.4, 10.5),
+#' category = c("A", "B", "A", "C", "B", "C", "A", "B", "C", "A"))
+#'
+#' # Define the value and categorical columns, control limit, and warning limit
+#' value_column <- "values"
+#' cat_column <- "category"
+#' limit <- 10.5
+#' hard_limit <- 10.2
+#' target_value <- 11
+#'
+#' # Get the control chart with plotly
+#' get_analysis_plot(df, value_column, cat_column, target_value, limit, hard_limit)
+#'
+#' @export
+#' @importFrom ggplot2 ggplot geom_point geom_line geom_hline ggtitle labs aes_string aes
+#' @importFrom plotly ggplotly
+get_analysis_plot <- function(df, value_column, cat_column, target_value, limit, hard_limit) {
+  # Crear el gráfico de control con ggplot2
+  p <- ggplot(df, aes_string(x = seq_along(df[[1]]), y = value_column)) +
+    geom_point(aes_string(color = cat_column)) +
+    #geom_line(aes(y = target_value, group = 1)) +
+    geom_hline(yintercept = target_value, color = "blue") +
+    geom_hline(yintercept = limit, color = "green") +
+    geom_hline(yintercept = hard_limit, color = "red") +
+    labs(x = "Muestra", y = "Valor") +
+    ggtitle("Gráfico de Control")
+
+  # Convertir el gráfico a plotly
+  return(ggplotly(p))
 }
