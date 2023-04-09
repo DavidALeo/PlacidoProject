@@ -22,14 +22,17 @@ Imports:
     bslib,
     config (>= 0.3.1),
     dplyr,
+    ggplot2,
     golem (>= 0.4.0),
+    plotly,
     shiny (>= 1.7.4)
 Suggests: 
     knitr,
     rmarkdown,
     spelling,
     lintr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    shinytest2
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US

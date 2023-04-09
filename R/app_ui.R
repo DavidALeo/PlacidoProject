@@ -2,7 +2,8 @@
 #'
 #' @param request Internal parameter for `{shiny}`.
 #'     DO NOT REMOVE.
-#' @import shiny bslib
+#' @import shiny
+#' @importFrom bslib bs_theme font_collection font_google
 #' @noRd
 app_ui <- function(request) {
   tagList(
