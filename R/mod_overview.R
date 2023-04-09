@@ -22,12 +22,12 @@ mod_overview_ui <- function(id) {
       numericInput(
         inputId = ns("BatchSize"),
         label = "Tamaño del lote",
-        value = 0
+        value = 100
       ),
       numericInput(
         inputId =  ns("LabeledQuantity"),
         label = "Cantidad nominal",
-        value = 0
+        value = 45
       ),
       fileInput(ns("first_sample"), "Selecciona un fichero"),
       selectInput(ns("first_noncon_column"), "Selecciona columna de valores", c())
@@ -45,8 +45,7 @@ mod_overview_ui <- function(id) {
   )
 }
 
-yuhu_df <- data.frame(values = c(10.2, 10.5, 10.1, 10.3, 9.9, 10.6, 10.2, 10.3, 10.4, 10.5),
-                      category = c("A", "B", "A", "C", "B", "C", "A", "B", "C", "A"))
+
 
 #' overview Server Functions
 #'
@@ -65,7 +64,7 @@ mod_overview_server <- function(id) {
           )
         })},error = function(e){
                  output$textualExplanation <- renderText({
-                   paste("El tamaño del lote es demasiado pequeño.")
+                   paste("El tamaño del lote es demasiado pequeC1o.")
                  })
                }
       )
@@ -115,10 +114,10 @@ mod_overview_server <- function(id) {
           msg <- "La muestra ha superado el análisis de no conformidades. El lote se acepta."
         } else if (results$decision == "Reject") {
           class <- "alert alert-danger"
-          msg <- "La muestra no ha superado el análisis de no conformidades. Es necesario un segundo análisis."
+          msg <- "La muestra no ha superado el análisis de no conformidades. El lote se rechaza."
         } else {
           class <- "alert alert-warning"
-          msg <- "La muestra no ha superado el análisis de no conformidades. El lote se rechaza."
+          msg <- "La muestra no ha superado el análisis de no conformidades. Es necesario un segundo análisis."
         }
         output$first_noncon_results_text <- renderText({
           paste(
@@ -159,7 +158,7 @@ mod_overview_server <- function(id) {
         },error = function(e){
           if (e$message == "Batch size is outside the range of possible values."){
             output$first_noncon_results_text <- renderText({
-              paste("El tamaño del lote es demasiado pequeño.")
+              paste("El tamaño del lote es demasiado pequeC1o.")
             })
           } else {
             output$first_noncon_results_text <- renderText({
