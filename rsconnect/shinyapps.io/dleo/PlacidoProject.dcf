@@ -5,9 +5,9 @@ account: dleo
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8634323
-bundleId: 7010498
+bundleId: 7063274
 url: https://dleo.shinyapps.io/placidoproject/
-when: 1679860776.95946
-lastSyncTime: 1679860776.95947
+when: 1680911203.29925
+lastSyncTime: 1680911203.29926
 asMultiple: FALSE
 asStatic: FALSE
