@@ -13,3 +13,5 @@ $run_dev.*
 ^rsconnect$
 ^\.github$
 ^\.lintr$
+^doc$
+^Meta$
