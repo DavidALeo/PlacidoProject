@@ -4,18 +4,20 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @importFrom bslib bs_theme font_collection font_google bs_theme_preview
+#' @importFrom shinyjs useShinyjs
 #' @noRd
 app_ui <- function(request) {
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
+    useShinyjs(),
     # Your application UI logic
     fluidPage(
       navbarPage(
         title = "PlacidoApp",
         tabPanel(title = "Resumen",mod_overview_ui("overview_1")),
-        tabPanel(title = "Muestreo"),
-        tabPanel(title = "Análisis de no-conformidades"),
+        tabPanel(title = "Muestreo",mod_samples_ui("samples_1")),
+        tabPanel(title = "Análisis de no-conformidades",mod_samples_ui("samples_2")),
         tabPanel(title = "Análisis de la media"),
         tabPanel(title = "Informes"),
         navbarMenu(

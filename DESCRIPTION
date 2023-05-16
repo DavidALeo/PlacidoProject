@@ -27,7 +27,8 @@ Imports:
     golem (>= 0.4.0),
     plotly,
     purrr,
-    shiny (>= 1.7.4)
+    shiny (>= 1.7.4),
+    shinyjs
 Suggests: 
     knitr,
     rmarkdown,
