@@ -581,6 +581,17 @@
       ],
       "Hash": "f4dcd23b67e33d851d2079f703e8b985"
     },
+    "gargoyle": {
+      "Package": "gargoyle",
+      "Version": "0.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "attempt",
+        "shiny"
+      ],
+      "Hash": "ad2173d7d802e82abd78f6108d14c6d7"
+    },
     "generics": {
       "Package": "generics",
       "Version": "0.1.3",

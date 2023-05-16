@@ -7,33 +7,19 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+#' @importFrom gargoyle trigger watch
 mod_samples_ui <- function(id){
   ns <- NS(id)
   sidebarLayout(
     sidebarPanel(
-      h2("Resumen"),
-      "Datos necesarios para continuar:",
-      numericInput(
-        inputId = ns("BatchSize"),
-        label = "Tamaño del lote",
-        value = 100
-      ),
-      numericInput(
-        inputId =  ns("LabeledQuantity"),
-        label = "Cantidad nominal",
-        value = 45
-      ),
-      fileInput(ns("first_sample"), "Selecciona un fichero"),
-      selectInput(ns("first_noncon_column"), "Selecciona columna de valores", c()),
-      hidden(tags$div(
-        id = ns("second_sample_div"),
-        fileInput(ns("second_sample"), "Selecciona un fichero para la segunda muestra"),
-        selectInput(ns("second_noncon_column"), "Selecciona columna de valores para la segunda muestra", c())
-      ))
+      mod_sidebar_ui(ns("sidebar_1"))
     ),
     mainPanel(
-      h2("Resumen"),
-      verbatimTextOutput(ns("print"))
+      h2("Muestras"),
+      h3("Primera muestra"),
+      DTOutput(ns("first_sample_table")),
+      h3("Segunda muestra"),
+      DTOutput(ns("second_sample_table"))
     )
   )
 }
@@ -44,34 +30,40 @@ mod_samples_ui <- function(id){
 mod_samples_server <- function(id, data){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+    mod_sidebar_server("sidebar_1", data)
     observe({
-      # Actualizar el valor de BatchSize cuando cambie en otro módulo
-      if (data$batch_size != input$BatchSize){
-        updateNumericInput(
-        session,
-        inputId = "BatchSize",
-        value = data$batch_size
-      )}
-    }) %>% bindEvent(data$batch_size)
-
-    observe({
-      # Actualizar el valor de LabeledQuantity cuando cambie en otro módulo
-      if (data$labeled_quantity != input$LabeledQuantity){
-        updateNumericInput(
-          session,
-          inputId = "LabeledQuantity",
-          value = data$labeled_quantity
+      req(data$batch_data[[data$current_batch]]$first_sample)
+      df <- data$batch_data[[data$current_batch]]$first_sample
+      selected_column <- data$batch_data[[data$current_batch]]$first_sample_column
+      output$first_sample_table <- renderDT({
+        DT::datatable(df,
+                      options = list(
+                        pageLength = 5
+                      ),
+                      rownames = FALSE,selection = 'none',
+                      extensions = 'Responsive'
+        ) %>% formatStyle(selected_column,
+                          color = "red", backgroundColor = "orange", fontWeight = "bold"
         )
-      }
-    }) %>% bindEvent(data$labeled_quantity)
+      },server = FALSE)
+    }) %>% bindEvent(gargoyle::watch("first_sample_column"))
 
     observe({
-      data$labeled_quantity <- input$LabeledQuantity
-    }) %>% bindEvent(input$LabeledQuantity)
-
-    observe({
-      data$batch_size <- input$BatchSize
-    }) %>% bindEvent(input$BatchSize)
+      req(data$batch_data[[data$current_batch]]$second_sample)
+      df <- data$batch_data[[data$current_batch]]$second_sample
+      selected_column <- data$batch_data[[data$current_batch]]$second_sample_column
+      output$second_sample_table <- renderDT({
+        DT::datatable(df,
+                      options = list(
+                        pageLength = 5
+                      ),
+                      rownames = FALSE,selection = 'none',
+                      extensions = 'Responsive'
+        ) %>% formatStyle(selected_column,
+                          color = "red", backgroundColor = "orange", fontWeight = "bold"
+        )
+      },server = FALSE)
+    }) %>% bindEvent(gargoyle::watch("second_sample_column"))
 
     output$print <- renderPrint({
       data$labeled_quantity
