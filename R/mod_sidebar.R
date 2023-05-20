@@ -81,6 +81,7 @@ mod_sidebar_server <- function(id, data) {
 
     # LabeledQuantity input
     observe({
+      req(input$LabeledQuantity)
       if (data$batch_data[[data$current_batch]]$labeled_quantity != input$LabeledQuantity) {
         data$batch_data[[data$current_batch]]$labeled_quantity <- input$LabeledQuantity
         gargoyle::trigger("labeled_quantity")
@@ -203,11 +204,11 @@ mod_sidebar_server <- function(id, data) {
             req_data$second_sample_column,
             req_data$labeled_quantity,
             req_data$batch_size
-
           )
         }, error = function(e) {
+          print(e$message)
           data$batch_data[[data$current_batch]]$second_noncon_analysis$decision <- "ERROR"
-          data$batch_data[[data$current_batch]]$second_noncon_analysis$msg <- e$message
+          data$batch_data[[data$current_batch]]$second_noncon_analysis$msg<- e$message
           data$batch_data[[data$current_batch]]$second_noncon_analysis$df <- NULL
           data$batch_data[[data$current_batch]]$second_noncon_analysis$plot <- NULL
         })
@@ -235,6 +236,8 @@ mod_sidebar_server <- function(id, data) {
               "Mean:", data$batch_data[[data$current_batch]]$mean_analysis$decision, "<br/>",
               "General:", data$batch_data[[data$current_batch]]$decision)
       })
+
+      gargoyle::trigger("analysis_completed")
     }) %>% bindEvent(input$do)
   })
 }
