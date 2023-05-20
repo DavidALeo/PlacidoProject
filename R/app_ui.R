@@ -30,26 +30,7 @@ app_ui <- function(request) {
         windowTitle = "PlacidoApp"
       ),
 
-      theme = bs_theme(
-        version = 5,
-        bg = "#D8D8D8",
-        fg = "#245953",
-        primary = "#408E91",
-        secondary = "#E49393",
-        base_font = font_collection(
-          font_google(family = "Nunito Sans"),
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "Segoe UI",
-          font_google(family = "Roboto"),
-          "Helvetica Neue",
-          "Arial",
-          "sans-serif",
-          "Apple Color Emoji",
-          "Segoe UI Emoji",
-          "Segoe UI Symbol"
-        )
-      )
+      theme = custom_theme()
     )
   )
 }
@@ -77,4 +58,44 @@ golem_add_external_resources <- function() {
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
   )
+}
+
+#' Modify Shiny Theme
+#'
+#' This function creates a custom Shiny theme for this app.
+#'
+#' @return A modified Shiny theme object.
+#' @importFrom bslib bs_theme font_collection font_google bs_add_variables bs_add_rules
+#' @noRd
+custom_theme <- function() {
+  theme <- bs_theme(
+    version = 5,
+    bg = "#D8D8D8",
+    fg = "#245953",
+    primary = "#408E91",
+    secondary = "#E49393",
+    base_font = font_collection(
+      font_google(family = "Nunito Sans"),
+      "-apple-system",
+      "BlinkMacSystemFont",
+      "Segoe UI",
+      font_google(family = "Roboto"),
+      "Helvetica Neue",
+      "Arial",
+      "sans-serif",
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      "Segoe UI Symbol"
+    )
+  )
+
+  theme <- bs_add_variables(theme, "container-bg" = "#FFFFFF", "container-border-color" = "#E0E0E0", "control-border-color" = "#CCCCCC")
+  theme <- bs_add_variables(theme, "navbar-bg" = "#245953", "navbar-fg" = "#FFFFFF", "sidebar-bg" = "#408E91", "sidebar-fg" = "#FFFFFF")
+
+  theme <- bs_add_rules(theme, ".container { background-color: $container-bg; border-color: $container-border-color; }")
+  theme <- bs_add_rules(theme, ".my-class { color: red; }")
+  theme <- bs_add_rules(theme, ".navbar { background-color: $navbar-bg; color: $navbar-fg; }")
+  theme <- bs_add_rules(theme, ".sidebar { background-color: $sidebar-bg; color: $sidebar-fg; width: 300px; }")
+
+  return(theme)
 }
