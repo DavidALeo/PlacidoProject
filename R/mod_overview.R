@@ -177,6 +177,7 @@ mod_overview_server <- function(id) {
           results$plot
         })
         },error = function(e){
+          print(e$message)
           if (e$message == "Batch size is outside the range of possible values."){
             output$first_noncon_results_text <- renderText({
               paste("El tamaño del lote es demasiado pequeC1o.")
@@ -200,6 +201,7 @@ mod_overview_server <- function(id) {
       ,error = function(e){
         output$first_noncon_results_table <- NULL
         output$first_control_plot <- NULL
+        print(e$message)
         if (e$message == "Batch size is outside the range of possible values."){
           output$first_noncon_results_text <- renderText({
             paste("El tamaño del lote es demasiado pequeC1o.")

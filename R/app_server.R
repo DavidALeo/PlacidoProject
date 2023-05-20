@@ -9,6 +9,7 @@ app_server <- function(input, output, session) {
                  "labeled_quantity",
                  "first_sample",
                  "first_sample_column",
+                 "analysis_completed",
                  "second_sample",
                  "second_sample_column",
                  "second_sample_required")
@@ -20,12 +21,12 @@ app_server <- function(input, output, session) {
                                                           first_sample_column = "",
                                                           second_sample_column = "",
                                                           second_sample_required = FALSE,
-                                                          first_noncon_analysis = list(decision = NULL),
-                                                          second_noncon_analysis = list(decision = NULL),
-                                                          mean_analysis = list(decision = NULL)
+                                                          first_noncon_analysis = list(decision = ""),
+                                                          second_noncon_analysis = list(decision = ""),
+                                                          mean_analysis = list(decision = "")
                                                           )
                                            )
                          )
   mod_samples_server("samples_1", data = data)
-  mod_samples_server("samples_2", data = data)
+  mod_plots_server("plots", data = data)
 }

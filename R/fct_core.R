@@ -286,7 +286,8 @@ second_noncon_analysis <- function(first_analysis_df, first_analysis_col_name, s
 
   return(list(decision = decision,
               first_analysis_df = first_analysis_df,
-              second_analysis_df = second_analysis_df))
+              second_analysis_df = second_analysis_df,
+              plot = get_analysis_plot(df, "values", "status", nominal_quantity, noncon_thres, noncon_limit)))
 }
 
 #' Calculate the standard deviation estimate of a column in a data frame
@@ -400,19 +401,47 @@ mean_analysis <- function(df, col_name, batch_size, nominal_quantity) {
 #' get_analysis_plot(df, value_column, cat_column, target_value, limit, hard_limit)
 #'
 #' @export
-#' @importFrom ggplot2 ggplot geom_point geom_line geom_hline ggtitle labs aes_string aes
+#' @importFrom ggplot2 ggplot geom_point geom_line geom_hline ggtitle labs aes_string aes theme element_text element_rect element_blank guides guide_legend scale_color_manual scale_fill_manual
 #' @importFrom plotly ggplotly
 get_analysis_plot <- function(df, value_column, cat_column, target_value, limit, hard_limit) {
-  # Crear el gráfico de control con ggplot2
+  # Crear un nuevo marco de datos con una sola fila para las líneas horizontales
+  lines_df <- data.frame(
+    value_column = c(target_value, limit, hard_limit),
+    names_column = c("Valor objetivo", "Límite", "Límite estricto")
+  )
+
+  unique_values <- unique(df[[cat_column]])
+  labels <- ifelse(unique_values == "Aceptable", "Aceptable",
+                   ifelse(unique_values == "Non-conformity", "No conformidad",
+                          ifelse(unique_values == "Rejection","Inaceptable","")))
+  labels <- c(c("Valor objetivo", "Límite", "Límite estricto"), labels)
+
+
+  # Crear el gráfico de control con ggplot2 utilizando el nuevo marco de datos
   p <- ggplot(df, aes_string(x = seq_along(df[[1]]), y = value_column)) +
     geom_point(aes_string(color = cat_column)) +
-    #geom_line(aes(y = target_value, group = 1)) +
-    geom_hline(yintercept = target_value, color = "blue") +
-    geom_hline(yintercept = limit, color = "green") +
-    geom_hline(yintercept = hard_limit, color = "red") +
+    geom_hline(data = lines_df, aes(yintercept = value_column, color = names_column, linetype = "solid")) +
+    scale_color_manual("", values = c("Valor objetivo" = "#5DADE2",
+                          "Límite" = "#F4D03F",
+                          "Límite estricto" = "#CD6155",
+                          "Aceptable" = "#245953",
+                          "Non-conformity"= "#408E91",
+                          "Rejection"= "#E49393"), labels  = labels) +
     labs(x = "Muestra", y = "Valor") +
-    ggtitle("Gráfico de Control")
-
+    ggtitle("Gráfico de Control") +
+    theme(
+      panel.background = element_rect(fill = "#F8F8F8"),
+      plot.background = element_rect(fill = "#D8D8D8"),
+      axis.text = element_text(color = "#245953"),
+      axis.title = element_text(color = "#245953"),
+      plot.title = element_text(color = "#245953"),
+      legend.position = "bottom",
+      legend.title = element_blank(),
+      legend.text = element_text(color = "#245953")
+    ) +
+    scale_fill_manual(values = c("#D8D8D8", "#F8F8F8", "#FFFFFF")) +
+    guides(linetype =  "none")
   # Convertir el gráfico a plotly
   return(ggplotly(p))
 }
+
