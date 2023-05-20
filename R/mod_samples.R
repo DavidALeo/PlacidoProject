@@ -18,8 +18,10 @@ mod_samples_ui <- function(id){
       h2("Muestras"),
       h3("Primera muestra"),
       DTOutput(ns("first_sample_table")),
-      h3("Segunda muestra"),
-      DTOutput(ns("second_sample_table"))
+      hidden(tags$div(
+        id = ns("second_sample_div"),
+        h3("Segunda muestra"),
+        DTOutput(ns("second_sample_table"))))
     )
   )
 }
@@ -40,10 +42,10 @@ mod_samples_server <- function(id, data){
                       options = list(
                         pageLength = 5
                       ),
-                      rownames = FALSE,selection = 'none',
+                      rownames = FALSE, selection = 'none',
                       extensions = 'Responsive'
         ) %>% formatStyle(selected_column,
-                          color = "red", backgroundColor = "orange", fontWeight = "bold"
+                          color = "#FFFFFF", backgroundColor = "#E49393", fontWeight = "bold"
         )
       },server = FALSE)
     }) %>% bindEvent(gargoyle::watch("first_sample_column"))
@@ -57,13 +59,22 @@ mod_samples_server <- function(id, data){
                       options = list(
                         pageLength = 5
                       ),
-                      rownames = FALSE,selection = 'none',
+                      rownames = FALSE, selection = 'none',
                       extensions = 'Responsive'
         ) %>% formatStyle(selected_column,
-                          color = "red", backgroundColor = "orange", fontWeight = "bold"
+                          color = "#FFFFFF", backgroundColor = "#E49393", fontWeight = "bold"
         )
       },server = FALSE)
     }) %>% bindEvent(gargoyle::watch("second_sample_column"))
+
+    # Show/Hide second analysis parts
+    observe({
+      if (data$batch_data[[data$current_batch]]$second_sample_required) {
+        show("second_sample_div")
+      } else {
+        hide("second_sample_div")
+      }
+    }) %>% bindEvent(gargoyle::watch("second_sample_required"))
 
     output$print <- renderPrint({
       data$labeled_quantity

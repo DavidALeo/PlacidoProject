@@ -36,7 +36,7 @@ mod_sidebar_ui <- function(id) {
       fileInput(ns("second_sample"), "Selecciona un fichero para la segunda muestra"),
       selectInput(ns("second_sample_column"), "Selecciona columna de valores para la segunda muestra", c())
     )),
-    actionButton(ns("do"), "Click Me"),
+    actionButton(ns("do"), "Analizar"),
     verbatimTextOutput(ns("output_text"))
   )
 }
@@ -47,6 +47,15 @@ mod_sidebar_ui <- function(id) {
 mod_sidebar_server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    # Show/Hide second analysis parts
+    observe({
+      if (data$batch_data[[data$current_batch]]$second_sample_required) {
+        show("second_sample_div")
+      } else {
+        hide("second_sample_div")
+      }
+    }) %>% bindEvent(gargoyle::watch("second_sample_required"))
 
     # Update BatchSize input when changes in other modules
     observe({
@@ -177,9 +186,12 @@ mod_sidebar_server <- function(id, data) {
 
       first_analysis_decision <- data$batch_data[[data$current_batch]]$first_noncon_analysis$decision
       if (first_analysis_decision == "Second analysis") {
-        show("second_sample_div")
+        data$batch_data[[data$current_batch]]$second_sample_required <- TRUE
+        gargoyle::trigger("second_sample_required")
       } else {
+        data$batch_data[[data$current_batch]]$second_sample_required <- FALSE
         hide("second_sample_div")
+        gargoyle::trigger("second_sample_required")
       }
 
       if (data$batch_data[[data$current_batch]]$first_noncon_analysis$decision == "Second analysis" & data$batch_data[[data$current_batch]]$second_sample_column != "") {
@@ -217,10 +229,6 @@ mod_sidebar_server <- function(id, data) {
       } else{
         data$batch_data[[data$current_batch]]$decision <- "Reject"
       }
-      print(paste("First noncon:", data$batch_data[[data$current_batch]]$first_noncon_analysis$decision, "<br/>",
-                  "Second noncon:", data$batch_data[[data$current_batch]]$second_noncon_analysis$decision, "<br/>",
-                  "Mean:", data$batch_data[[data$current_batch]]$mean_analysis$decision, "<br/>",
-                  "General:", data$batch_data[[data$current_batch]]$decision))
       output$output_text <- renderPrint({
         paste("First noncon:", data$batch_data[[data$current_batch]]$first_noncon_analysis$decision, "<br/>",
               "Second noncon:", data$batch_data[[data$current_batch]]$second_noncon_analysis$decision, "<br/>",

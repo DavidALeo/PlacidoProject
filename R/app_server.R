@@ -5,7 +5,13 @@
 #' @noRd
 #' @importFrom gargoyle init
 app_server <- function(input, output, session) {
-  gargoyle::init("batch_size", "labeled_quantity", "first_sample", "first_sample_column", "second_sample", "second_sample_column")
+  gargoyle::init("batch_size",
+                 "labeled_quantity",
+                 "first_sample",
+                 "first_sample_column",
+                 "second_sample",
+                 "second_sample_column",
+                 "second_sample_required")
   mod_overview_server("overview_1")
   data <- reactiveValues(current_batch = "batch_1",
                          batch_data = list(batch_1 = list(batch_name = "batch-1",
@@ -13,6 +19,7 @@ app_server <- function(input, output, session) {
                                                           labeled_quantity = 45,
                                                           first_sample_column = "",
                                                           second_sample_column = "",
+                                                          second_sample_required = FALSE,
                                                           first_noncon_analysis = list(decision = NULL),
                                                           second_noncon_analysis = list(decision = NULL),
                                                           mean_analysis = list(decision = NULL)
