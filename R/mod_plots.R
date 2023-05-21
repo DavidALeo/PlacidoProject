@@ -22,13 +22,13 @@ mod_plots_ui <- function(id){
         h4("Tabla de resultados"),
         DTOutput(ns("first_noncon_results_table")),
         h4(""),
-        plotlyOutput(ns("first_noncon_plot")),
+        tags$div(plotlyOutput(ns("first_noncon_plot")), class = "plots"),
         hidden(tags$div(
           id = ns("second_sample_div"),
           h3("Segunda muestra"),
           htmlOutput(ns("second_noncon_results_text")),
           DTOutput(ns("second_noncon_results_table")),
-          plotlyOutput(ns("second_noncon_plot")),
+          tags$div(plotlyOutput(ns("second_noncon_plot")), class = "plots"),
         ))
       )
     )

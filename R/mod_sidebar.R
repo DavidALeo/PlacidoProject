@@ -36,8 +36,7 @@ mod_sidebar_ui <- function(id) {
       fileInput(ns("second_sample"), "Selecciona un fichero para la segunda muestra"),
       selectInput(ns("second_sample_column"), "Selecciona columna de valores para la segunda muestra", c())
     )),
-    actionButton(ns("do"), "Analizar"),
-    verbatimTextOutput(ns("output_text"))
+    actionButton(ns("do"), "Analizar")
   )
 }
 
@@ -158,7 +157,7 @@ mod_sidebar_server <- function(id, data) {
       }
     }) %>% bindEvent(input$second_sample_column)
 
-    # perform first analisys
+    # Perform the analysis
     observe({
       req_data <- data$batch_data[[data$current_batch]]
       req(
@@ -214,28 +213,25 @@ mod_sidebar_server <- function(id, data) {
         })
       }
 
-      if (data$batch_data[[data$current_batch]]$first_noncon_analysis$decision == "Accept" | data$batch_data[[data$current_batch]]$second_noncon_analysis$decision == "Accept") {
-        tryCatch(expr = {
-          data$batch_data[[data$current_batch]]$mean_analysis$decision <- mean_analysis(
-            req_data$first_sample,
-            req_data$first_sample_column,
-            req_data$batch_size,
-            req_data$labeled_quantity
-          )
-          data$batch_data[[data$current_batch]]$decision <- data$batch_data[[data$current_batch]]$mean_analysis$decision
-        }, error = function(e) {
-          data$batch_data[[data$current_batch]]$mean_analysis$decision <- "ERROR"
-          data$batch_data[[data$current_batch]]$mean_analysis$msg <- e$message
-        })
+      tryCatch(expr = {
+        data$batch_data[[data$current_batch]]$mean_analysis$decision <- mean_analysis(
+          req_data$first_sample,
+          req_data$first_sample_column,
+          req_data$batch_size,
+          req_data$labeled_quantity
+        )
+        data$batch_data[[data$current_batch]]$decision <- data$batch_data[[data$current_batch]]$mean_analysis$decision
+      }, error = function(e) {
+        data$batch_data[[data$current_batch]]$mean_analysis$decision <- "ERROR"
+        data$batch_data[[data$current_batch]]$mean_analysis$msg <- e$message
+      })
+
+      if ((data$batch_data[[data$current_batch]]$first_noncon_analysis$decision == "Accept" | data$batch_data[[data$current_batch]]$second_noncon_analysis$decision == "Accept")
+          & data$batch_data[[data$current_batch]]$mean_analysis$decision == "Accept") {
+        data$batch_data[[data$current_batch]]$decision <- "Accept"
       } else{
         data$batch_data[[data$current_batch]]$decision <- "Reject"
       }
-      output$output_text <- renderPrint({
-        paste("First noncon:", data$batch_data[[data$current_batch]]$first_noncon_analysis$decision, "<br/>",
-              "Second noncon:", data$batch_data[[data$current_batch]]$second_noncon_analysis$decision, "<br/>",
-              "Mean:", data$batch_data[[data$current_batch]]$mean_analysis$decision, "<br/>",
-              "General:", data$batch_data[[data$current_batch]]$decision)
-      })
 
       gargoyle::trigger("analysis_completed")
     }) %>% bindEvent(input$do)
