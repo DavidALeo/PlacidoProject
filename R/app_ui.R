@@ -17,8 +17,8 @@ app_ui <- function(request) {
         title = "PlacidoApp",
         tabPanel(title = "Resumen",mod_overview_ui("overview_1")),
         tabPanel(title = "Muestras",mod_samples_ui("samples_1")),
-        tabPanel(title = "Análisis de no-conformidades",mod_plots_ui("plots")),
-        tabPanel(title = "Análisis de la media"),
+        tabPanel(title = "Análisis de no-conformidades",mod_noncon_results_ui("noncon_analysis_results_page")),
+        tabPanel(title = "Análisis de la media",mod_mean_results_ui("mean_analysis_results_page")),
         tabPanel(title = "Informes"),
         navbarMenu(
           title = "Más",
