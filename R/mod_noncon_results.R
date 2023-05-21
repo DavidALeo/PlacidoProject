@@ -115,44 +115,43 @@ mod_noncon_results_server <- function(id, data){
           class2 <- "alert alert-warning"
           msg2 <- "Introduce una segunda muestra para completar el análisis."
         }
+
         output$second_noncon_results_text <- renderText({
           paste(
             tags$div(class = class2, role = "alert", msg2)
           )
         })
 
-        if (first_analysis_results$decision == "Accept" | first_analysis_results$decision == "Reject" ){
-          get_icon <- function (target_status){
-            icons <- data.frame(status = c("Aceptable", "Non-conformity", "Rejection"),
-                                icon = c("ok-circle", "remove-circle", "ban-circle"))
-            icons %>%
-              filter(.data$status == target_status) %>%
-              pull(icon)
-          }
-
-          output$second_noncon_results_table <- renderDT({
-            data <- second_analysis_results$second_analysis_df %>%
-              mutate(icon = map_chr(.data$status, ~as.character(icon(get_icon(.x), lib = "glyphicon"))))
-            column_names = names(data)
-            column_names[which(column_names == "icon")] <- ""
-            DT::datatable(data,
-                          options = list(
-                            pageLength = 5
-                          ),
-                          rownames = FALSE,
-                          colnames = column_names,
-                          selection = 'none',
-                          extensions = 'Responsive',
-                          escape = FALSE
-            ) %>% formatStyle("status",
-                              backgroundColor = styleEqual(c("Aceptable", "Non-conformity", "Rejection"), c('#5DADE2','#F4D03F', '#CD6155'))
-            )
-          },server = FALSE)
-
-          output$second_noncon_plot = renderPlotly({
-            second_analysis_results$plot
-          })
+        get_icon <- function (target_status){
+          icons <- data.frame(status = c("Aceptable", "Non-conformity", "Rejection"),
+                              icon = c("ok-circle", "remove-circle", "ban-circle"))
+          icons %>%
+            filter(.data$status == target_status) %>%
+            pull(icon)
         }
+
+        output$second_noncon_results_table <- renderDT({
+          data <- second_analysis_results$second_analysis_df %>%
+            mutate(icon = map_chr(.data$status, ~as.character(icon(get_icon(.x), lib = "glyphicon"))))
+          column_names = names(data)
+          column_names[which(column_names == "icon")] <- ""
+          DT::datatable(data,
+                        options = list(
+                          pageLength = 5
+                        ),
+                        rownames = FALSE,
+                        colnames = column_names,
+                        selection = 'none',
+                        extensions = 'Responsive',
+                        escape = FALSE
+          ) %>% formatStyle("status",
+                            backgroundColor = styleEqual(c("Aceptable", "Non-conformity", "Rejection"), c('#5DADE2','#F4D03F', '#CD6155'))
+          )
+        },server = FALSE)
+
+        output$second_noncon_plot = renderPlotly({
+          second_analysis_results$plot
+        })
       }
     }) %>% bindEvent(gargoyle::watch("analysis_completed"))
   })

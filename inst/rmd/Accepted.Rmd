@@ -61,7 +61,7 @@ tagList(h3("Análisis adicional de no conformidades"),
 ```
 
 # Análisis de la media
-El análisis de la media concluye que la muestra debe ser `r params$first_noncon_decision`.
+El análisis de la media concluye que la muestra debe ser `r params$mean_analysis_plot`.
 
 ```{r echo = FALSE}
 library(htmltools)
