@@ -26,13 +26,13 @@ Imports:
     gargoyle,
     ggplot2,
     golem (>= 0.4.0),
+    rmarkdown,
     plotly,
     purrr,
     shiny (>= 1.7.4),
     shinyjs
 Suggests: 
     knitr,
-    rmarkdown,
     spelling,
     lintr,
     testthat (>= 3.0.0),

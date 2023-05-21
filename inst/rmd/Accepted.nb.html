@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Análisis del lote</title>
+
+<script src="Accepted_files/header-attrs-2.21/header-attrs.js"></script>
+<script src="Accepted_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="Accepted_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="Accepted_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="Accepted_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="Accepted_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<link href="Accepted_files/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="Accepted_files/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="Accepted_files/navigation-1.1/tabsets.js"></script>
+<script src="Accepted_files/navigation-1.1/codefolding.js"></script>
+<script src="Accepted_files/navigation-1.1/sourceembed.js"></script>
+<link href="Accepted_files/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="Accepted_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+<style type="text/css">
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+<style type="text/css">
+.kable-table {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: auto;
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-bottom: 20px;
+  max-height: 350px;
+}
+
+.kable-table table {
+  margin-bottom: 0px;
+}
+
+.kable-table table>thead>tr>th {
+  border: none;
+  border-bottom: 2px solid #dddddd;
+}
+
+.kable-table table>thead {
+  background-color: #fff;
+}
+</style>
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Análisis del lote</h1>
+
+</div>
+
+
+<!-- rnb-text-begin -->
+<div id="resumen" class="section level1">
+<h1>Resumen</h1>
+<p>Informe generado el 21/05/2023 22:00.</p>
+<p>La muestra ha sido rechazada.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="análisis-de-no-conformidades" class="section level1">
+<h1>Análisis de no conformidades</h1>
+<p>El análisis de no conformidades concluye que la muestra debe ser
+rechazada.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="análisis-de-la-media" class="section level1">
+<h1>Análisis de la media</h1>
+<p>El análisis de la media concluye que la muestra debe ser
+rechazada.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+</div>
+
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQW7DoWxpc2lzIGRlbCBsb3RlIgpvdXRwdXQ6CiAgaHRtbF9ub3RlYm9vazoKICAgIHNlbGZfY29udGFpbmVkOiBmYWxzZSAKcGFyYW1zOiAKICAgIGJhdGNoX25hbWU6ICJiYXRjaC0xIgogICAgYmF0Y2hfc2l6ZTogMTAwCiAgICBsYWJlbGVkX3F1YW50aXR5OiA0NQogICAgc2Vjb25kX3NhbXBsZV9yZXF1aXJlZDogVFJVRQogICAgZmlyc3Rfbm9uY29uX25vbmNvbmZvcm1pdGllczogMQogICAgZmlyc3Rfbm9uY29uX3JlamVjdGlvbnM6IDEKICAgIHNlY29uZF9ub25jb25fbm9uY29uZm9ybWl0aWVzOiAxCiAgICBzZWNvbmRfbm9uY29uX3JlamVjdGlvbnM6IDEKICAgIGZpcnN0X25vbmNvbl9kZWNpc2lvbjogInJlY2hhemFkYSIKICAgIHNlY29uZF9ub25jb25fZGVjaXNpb246ICJyZWNoYXphZGEiCiAgICBtZWFuX2FuYWx5c2lzX2RlY2lzaW9uOiAicmVjaGF6YWRhIgogICAgZGVjaXNpb246ICJyZWNoYXphZGEiCiAgICBmaXJzdF9ub25jb25fcGxvdDogIiIKICAgIHNlY29uZF9ub25jb25fcGxvdDogIiIKICAgIG1lYW5fYW5hbHlzaXNfcGxvdDogIiIKLS0tCgojIFJlc3VtZW4KCkluZm9ybWUgZ2VuZXJhZG8gZWwgYHIgZm9ybWF0KFN5cy50aW1lKCksICIlZC8lbS8lWSAlSDolTSIpYC4KCkxhIG11ZXN0cmEgaGEgc2lkbyBgciBwYXJhbXMkZGVjaXNpb25gLgoKYGBge3IgZWNobyA9IEZBTFNFfQpsaWJyYXJ5KGh0bWx0b29scykKdGFnTGlzdChwKCJQYXLDoW1ldHJvcyBkZSBsYSBtdWVzdHJhOiIpLHRhZ3MkdWwoCiAgdGFncyRsaSgiVGFtYcOxbyBkZWwgbG90ZTogIiwgcGFyYW1zJGJhdGNoX3NpemUpLAogIHRhZ3MkbGkoIkNhbnRpZGFkIG5vbWluYWw6ICIscGFyYW1zJGxhYmVsZWRfcXVhbnRpdHkpCikpCmBgYAoKIyBBbsOhbGlzaXMgZGUgbm8gY29uZm9ybWlkYWRlcwpFbCBhbsOhbGlzaXMgZGUgbm8gY29uZm9ybWlkYWRlcyBjb25jbHV5ZSBxdWUgbGEgbXVlc3RyYSBkZWJlIHNlciBgciBwYXJhbXMkZmlyc3Rfbm9uY29uX2RlY2lzaW9uYC4KCmBgYHtyIGVjaG8gPSBGQUxTRX0KbGlicmFyeShodG1sdG9vbHMpCnRhZ0xpc3QocCgiRW4gbGEgbXVlc3RyYSBzZSBoYW4gZW5jb250cmFkbzoiKSwKICAgICAgICB0YWdzJHVsKAogICAgICAgICAgdGFncyRsaShwYXJhbXMkZmlyc3Rfbm9uY29uX25vbmNvbmZvcm1pdGllcywgIm5vIGNvbmZvcm1pZGFkZXMiKSwKICAgICAgICAgIHRhZ3MkbGkocGFyYW1zJGZpcnN0X25vbmNvbl9yZWplY3Rpb25zLCAiaW5hY2VwdGFibGVzLiIpCiAgICAgICAgKSwKICAgICAgICBodG1sdG9vbHM6OnRhZ0xpc3QocGFyYW1zJGZpcnN0X25vbmNvbl9wbG90KSkKYGBgCgpgYGB7ciBldmFsID0gcGFyYW1zJHNlY29uZF9zYW1wbGVfcmVxdWlyZWQsIGVjaG8gPSBGQUxTRX0KbGlicmFyeShodG1sdG9vbHMpCnRhZ0xpc3QoaDMoIkFuw6FsaXNpcyBhZGljaW9uYWwgZGUgbm8gY29uZm9ybWlkYWRlcyIpLAogICAgICAgIHAoIkVsIGFuw6FsaXNpcyBkZSBubyBjb25mb3JtaWRhZGVzIGNvbmNsdXllIHF1ZSBsYSBtdWVzdHJhIGRlYmUgc2VyIiwgcGFyYW1zJHNlY29uZF9ub25jb25fZGVjaXNpb24pLAogICAgICAgIHAoIkVuIGxhIG11ZXN0cmEgc2UgaGFuIGVuY29udHJhZG86IiksCiAgICAgICAgcCh0YWdzJHVsKAogICAgICAgICAgdGFncyRsaShwYXJhbXMkZmlyc3Rfbm9uY29uX25vbmNvbmZvcm1pdGllcywgIm5vIGNvbmZvcm1pZGFkZXMiKSwKICAgICAgICAgIHRhZ3MkbGkocGFyYW1zJGZpcnN0X25vbmNvbl9yZWplY3Rpb25zLCAiaW5hY2VwdGFibGVzLiIpCiAgICAgICAgKSksCiAgICAgICAgaHRtbHRvb2xzOjp0YWdMaXN0KHBhcmFtcyRzZWNvbmRfbm9uY29uX3Bsb3QpCiAgICAgICAgKQpgYGAKCiMgQW7DoWxpc2lzIGRlIGxhIG1lZGlhCkVsIGFuw6FsaXNpcyBkZSBsYSBtZWRpYSBjb25jbHV5ZSBxdWUgbGEgbXVlc3RyYSBkZWJlIHNlciBgciBwYXJhbXMkZmlyc3Rfbm9uY29uX2RlY2lzaW9uYC4KCmBgYHtyIGVjaG8gPSBGQUxTRX0KbGlicmFyeShodG1sdG9vbHMpCmh0bWx0b29sczo6dGFnTGlzdChwYXJhbXMkbWVhbl9hbmFseXNpc19wbG90KQpgYGAK</div>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+$(document).ready(function () {
+  $('.knitsql-table').addClass('kable-table');
+  var container = $('.kable-table');
+  container.each(function() {
+
+    // move the caption out of the table
+    var table = $(this).children('table');
+    var caption = table.children('caption').detach();
+    caption.insertBefore($(this)).css('display', 'inherit');
+  });
+});
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("Accepted.Rmd");
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

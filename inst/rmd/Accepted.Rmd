@@ -1,0 +1,69 @@
+---
+title: "Análisis del lote"
+output: html_document
+
+params: 
+    batch_name: "batch-1"
+    batch_size: 100
+    labeled_quantity: 45
+    second_sample_required: TRUE
+    first_noncon_nonconformities: 1
+    first_noncon_rejections: 1
+    second_noncon_nonconformities: 1
+    second_noncon_rejections: 1
+    first_noncon_decision: "rechazada"
+    second_noncon_decision: "rechazada"
+    mean_analysis_decision: "rechazada"
+    decision: "rechazada"
+    first_noncon_plot: ""
+    second_noncon_plot: ""
+    mean_analysis_plot: ""
+---
+
+# Resumen
+
+Informe generado el `r format(Sys.time(), "%d/%m/%Y %H:%M")`.
+
+La muestra ha sido `r params$decision`.
+
+```{r echo = FALSE}
+library(htmltools)
+tagList(p("Parámetros de la muestra:"),tags$ul(
+  tags$li("Tamaño del lote: ", params$batch_size),
+  tags$li("Cantidad nominal: ",params$labeled_quantity)
+))
+```
+
+# Análisis de no conformidades
+El análisis de no conformidades concluye que la muestra debe ser `r params$first_noncon_decision`.
+
+```{r echo = FALSE}
+library(htmltools)
+tagList(p("En la muestra se han encontrado:"),
+        tags$ul(
+          tags$li(params$first_noncon_nonconformities, "no conformidades"),
+          tags$li(params$first_noncon_rejections, "inaceptables.")
+        ),
+        htmltools::tagList(params$first_noncon_plot))
+```
+
+```{r eval = params$second_sample_required, echo = FALSE}
+library(htmltools)
+tagList(h3("Análisis adicional de no conformidades"),
+        p("El análisis de no conformidades concluye que la muestra debe ser", params$second_noncon_decision),
+        p("En la muestra se han encontrado:"),
+        p(tags$ul(
+          tags$li(params$first_noncon_nonconformities, "no conformidades"),
+          tags$li(params$first_noncon_rejections, "inaceptables.")
+        )),
+        htmltools::tagList(params$second_noncon_plot)
+        )
+```
+
+# Análisis de la media
+El análisis de la media concluye que la muestra debe ser `r params$mean_analysis_plot`.
+
+```{r echo = FALSE}
+library(htmltools)
+htmltools::tagList(params$mean_analysis_plot)
+```

@@ -36,7 +36,8 @@ mod_overview_ui <- function(id) {
         h3("Resultados"),
         htmlOutput(ns("text_results")),
         htmlOutput(ns("text_detailed_results")),
-      ))
+      )),
+      downloadButton(ns("report"), "Descargar Informe", disabled = TRUE),
       )
     )
   )
@@ -183,5 +184,67 @@ mod_overview_server <- function(id, data) {
         )
       }
     }) %>% bindEvent(gargoyle::watch("analysis_completed"))
+
+    observe({
+      # Habilitar el botón
+      if (data$batch_data[[data$current_batch]]$mean_analysis$decision != "") {
+        shinyjs::enable("report")
+      } else {
+        shinyjs::disable("report")
+      }
+    }) %>% bindEvent(gargoyle::watch("analysis_completed"))
+
+    output$report <- downloadHandler(filename = "report.html",
+                                     content = function(file) {
+                                       batch_data <- data$batch_data[[data$current_batch]]
+                                       mean_analisys <- switch(batch_data$mean_analysis$decision,
+                                                               "Reject" = "rechazada",
+                                                               "Accept" = "aceptada",
+                                                               "$$ERROR$$")
+                                       first_analysis <- switch(batch_data$first_noncon_analysis$decision,
+                                                                "Reject" = "rechazada",
+                                                                "Accept" = "aceptada",
+                                                                "Second analysis" = "analizada una segunda vez",
+                                                                "$$ERROR$$")
+                                       second_analysis <- switch(batch_data$second_noncon_analysis$decision,
+                                                                 "Reject" = "rechazada",
+                                                                 "Accept" = "aceptada",
+                                                                 "$$ERROR$$")
+                                       general_decision <- switch(batch_data$decision,
+                                                                  "Reject" = "rechazada",
+                                                                  "Accept" = "aceptada",
+                                                                  "$$ERROR$$")
+
+                                       first_noncon_nonconformities <- sum(batch_data$first_noncon_analysis$df$status == "Non-conformity")
+                                       first_noncon_rejections <- sum(batch_data$first_noncon_analysis$df$status == "Rejection")
+                                       second_noncon_nonconformities <- sum(batch_data$second_noncon_analysis$second_analysis_df$status == "Non-conformity")
+                                       second_noncon_rejections <- sum(batch_data$second_noncon_analysis$second_analysis_df$status == "Rejection")
+
+                                       tempReport <- file.path(tempdir(), "Accepted.Rmd")
+                                       file.copy(file.path("inst", "rmd", "Accepted.Rmd"), tempReport, overwrite = TRUE)
+
+                                       params <- list(batch_name= "batch-1",
+                                                      batch_size= batch_data$batch_size,
+                                                      labeled_quantity= batch_data$labeled_quantity,
+                                                      second_sample_required= batch_data$second_sample_required,
+                                                      first_noncon_nonconformities= first_noncon_nonconformities,
+                                                      first_noncon_rejections= first_noncon_rejections,
+                                                      second_noncon_nonconformities= second_noncon_nonconformities,
+                                                      second_noncon_rejections= second_noncon_rejections,
+                                                      first_noncon_decision= first_analysis,
+                                                      second_noncon_decision= second_analysis,
+                                                      mean_analysis_decision= mean_analisys,
+                                                      decision= general_decision,
+                                                      first_noncon_plot= batch_data$first_noncon_analysis$plot,
+                                                      second_noncon_plot= batch_data$second_noncon_analysis$plot,
+                                                      mean_analysis_plot= batch_data$mean_analysis$plot)
+                                       rmarkdown::render(tempReport,
+                                                         output_file = file,
+                                                         params = params,
+                                                         envir = new.env(parent = globalenv()),
+                                                         quiet = TRUE
+                                       )
+                                     }
+    )
   })
 }
