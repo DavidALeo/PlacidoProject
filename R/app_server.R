@@ -13,7 +13,7 @@ app_server <- function(input, output, session) {
                  "second_sample",
                  "second_sample_column",
                  "second_sample_required")
-  mod_overview_server("overview_1")
+  mod_overview_server("overview_1", data = data)
   data <- reactiveValues(current_batch = "batch_1",
                          batch_data = list(batch_1 = list(batch_name = "batch-1",
                                                           batch_size = 100,
@@ -23,7 +23,8 @@ app_server <- function(input, output, session) {
                                                           second_sample_required = FALSE,
                                                           first_noncon_analysis = list(decision = ""),
                                                           second_noncon_analysis = list(decision = ""),
-                                                          mean_analysis = list(decision = "")
+                                                          mean_analysis = list(decision = ""),
+                                                          decision = ""
                                                           )
                                            )
                          )

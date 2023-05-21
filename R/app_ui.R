@@ -16,7 +16,7 @@ app_ui <- function(request) {
       navbarPage(
         title = "PlacidoApp",
         tabPanel(title = "Resumen",mod_overview_ui("overview_1")),
-        tabPanel(title = "Muestreo",mod_samples_ui("samples_1")),
+        tabPanel(title = "Muestras",mod_samples_ui("samples_1")),
         tabPanel(title = "Análisis de no-conformidades",mod_plots_ui("plots")),
         tabPanel(title = "Análisis de la media"),
         tabPanel(title = "Informes"),
@@ -95,6 +95,6 @@ custom_theme <- function() {
   theme <- bs_add_rules(theme, ".container { background-color: $container-bg; border-color: $container-border-color; }")
   theme <- bs_add_rules(theme, ".navbar { background-color: $navbar-bg; color: $navbar-fg; position: fixed; top: 0; left: 0; width: 100%; z-index: 100; }")
   theme <- bs_add_rules(theme, ".tab-content {padding-top: 60px;}")
-
+  theme <- bs_add_rules(theme, ".plots { border: 2px solid #408E91; padding: 10px; }")
   return(theme)
 }

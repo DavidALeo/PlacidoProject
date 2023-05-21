@@ -16,42 +16,29 @@
 #' @importFrom shinyjs hide show hidden
 mod_overview_ui <- function(id) {
   ns <- NS(id)
+  tagList(
   sidebarLayout(
     sidebarPanel(
-      h2("Resumen"),
-      "Datos necesarios para continuar:",
-      numericInput(
-        inputId = ns("BatchSize"),
-        label = "Tamaño del lote",
-        value = 100
-      ),
-      numericInput(
-        inputId =  ns("LabeledQuantity"),
-        label = "Cantidad nominal",
-        value = 45
-      ),
-      fileInput(ns("first_sample"), "Selecciona un fichero"),
-      selectInput(ns("first_noncon_column"), "Selecciona columna de valores", c()),
-      hidden(tags$div(
-        id = ns("second_sample_div"),
-        fileInput(ns("second_sample"), "Selecciona un fichero para la segunda muestra"),
-        selectInput(ns("second_noncon_column"), "Selecciona columna de valores para la segunda muestra", c())
-      ))
+      mod_sidebar_ui(ns("sidebar_1"))
     ),
     mainPanel(
       h2("Resumen"),
-      htmlOutput(ns("textualExplanation")),
-      h3("Datos"),
-      DTOutput(ns("first_sample_table")),
-      h3("Resultado"),
-      htmlOutput(ns("first_noncon_results_text")),
-      DTOutput(ns("first_noncon_results_table")),
-      plotlyOutput(ns("first_control_plot")),
+      p("Para comenzar con el análisis, selecciona un tamaño de muestra y la cantidad nominal de tus envases."),
+      htmlOutput(ns("text_sample_needed")),
+      p("Ahora puedes cargar una nueva muestra en la barra lateral."),
       hidden(tags$div(
-        id = ns("second_noncon_results_div"),
-        DTOutput(ns("second_noncon_results_table")),
-        plotlyOutput(ns("second_control_plot")))
+        id = ns("first_sample_study"),
+        h3("Muestra"),
+        htmlOutput(ns("text_sample_study")),
+      )),
+      hidden(tags$div(
+        id = ns("results"),
+        h3("Resultados"),
+        htmlOutput(ns("text_results")),
+        htmlOutput(ns("text_detailed_results")),
       ))
+      )
+    )
   )
 }
 
@@ -60,217 +47,141 @@ mod_overview_ui <- function(id) {
 #' overview Server Functions
 #'
 #' @noRd
-mod_overview_server <- function(id) {
+mod_overview_server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-
+    mod_sidebar_server("sidebar_1", data)
     observe({
       tryCatch(expr = {
-        sample_size <- get_sample_sizes(input$BatchSize,"first")
-        output$textualExplanation <- renderText({
+        sample_size <- get_sample_sizes(data$batch_data[[data$current_batch]]$batch_size,"first")
+        output$text_sample_needed <- renderText({
           paste(
-            "Para un tamaño de lote de ", tags$span(class = "badge bg-secondary", input$BatchSize), "unidades, corresponde un tamaño de muestra inicial de ",
+            "Para un tamaño de lote de ", tags$span(class = "badge bg-secondary", data$batch_data[[data$current_batch]]$batch_size), "unidades, corresponde un tamaño de muestra inicial de ",
             tags$span(class = "badge bg-secondary", sample_size)
           )
         })},error = function(e){
-                 output$textualExplanation <- renderText({
-                   paste("El tamaño del lote es demasiado pequeC1o.")
+                 output$text_sample_needed <- renderText({
+                   paste("El tamaño del lote es demasiado pequeño para realizar un análisis estadístico. Debes medir todas las unidades.")
                  })
-               }
+            }
       )
-    }) %>% bindEvent(input$BatchSize)
+    }) %>% bindEvent(gargoyle::watch("batch_size"))
 
-    first_noncon_sample <- reactive({
-      req(input$first_sample)
-      read.csv(file = input$first_sample$datapath)
-    }) %>% bindEvent(input$first_sample)
-
-    second_noncon_sample <- reactive({
-      req(input$second_sample)
-      read.csv(file = input$second_sample$datapath)
-    }) %>% bindEvent(input$second_sample)
-
+    # Update sammples explanations when a new sample is loaded.
     observe({
-      output$first_sample_table <- renderDT(first_noncon_sample(), server = FALSE)
-    }) %>% bindEvent(first_noncon_sample())
-
-    observe({
-      output$first_sample_table <- renderDT({
-        DT::datatable(first_noncon_sample(),
-          options = list(
-            pageLength = 5
-          ),
-          rownames = FALSE,selection = 'none',
-           extensions = 'Responsive'
-        ) %>% formatStyle(input$first_noncon_column,
-          color = "red", backgroundColor = "orange", fontWeight = "bold"
-        )
-      },server = FALSE)
-    }) %>% bindEvent(input$first_noncon_column)
-
-    observe({
-      updateSelectInput(session, "first_noncon_column", "Selecciona columna de valores",
-        choices = first_noncon_sample() %>%
-          select_if(is.numeric) %>%
-          names()
-      )
-    }) %>% bindEvent(first_noncon_sample())
-
-    observe({
-      req(first_noncon_sample())
-      req(input$BatchSize)
-      req(input$LabeledQuantity)
-      req(input$first_noncon_column)
-
-      tryCatch(expr = {
-        results <- first_noncon_analysis(first_noncon_sample(), input$first_noncon_column, input$LabeledQuantity, input$BatchSize)
-        if (results$decision == "Accept"){
-          class <- "alert alert-success"
-          msg <- "La muestra ha superado el análisis de no conformidades. El lote se acepta."
-          hide("second_noncon_results_div")
-          hide("second_sample_div")
-        } else if (results$decision == "Reject") {
-          class <- "alert alert-danger"
-          msg <- "La muestra no ha superado el análisis de no conformidades. El lote se rechaza."
-          hide("second_noncon_results_div")
-          hide("second_sample_div")
-        } else {
-          class <- "alert alert-warning"
-          msg <- "La muestra no ha superado el análisis de no conformidades. Es necesario un segundo análisis."
-          show("second_noncon_results_div")
-          show("second_sample_div")
-        }
-        output$first_noncon_results_text <- renderText({
-          paste(
-            tags$div(class = class, role = "alert", msg)
-          )
-        })
-
-        get_icon <- function (target_status){
-          icons <- data.frame(status = c("Aceptable", "Non-conformity", "Rejection"),
-                              icon = c("ok-circle", "remove-circle", "ban-circle"))
-          icons %>%
-            filter(.data$status == target_status) %>%
-            pull(icon)
-        }
-
-        output$first_noncon_results_table <- renderDT({
-          data <- results$df %>%
-            mutate(icon = map_chr(.data$status, ~as.character(icon(get_icon(.x), lib = "glyphicon"))))
-          column_names = names(data)
-          column_names[which(column_names == "icon")] <- ""
-          DT::datatable(data,
-                        options = list(
-                          pageLength = 5
-                        ),
-                        rownames = FALSE,
-                        colnames = column_names,
-                        selection = 'none',
-                        extensions = 'Responsive',
-                        escape = FALSE
-          ) %>% formatStyle("status",
-                            backgroundColor = styleEqual(c("Aceptable", "Non-conformity", "Rejection"), c('green','yellow', 'red'))
-          )
-        },server = FALSE)
-
-        output$first_control_plot = renderPlotly({
-          results$plot
-        })
-        },error = function(e){
-          print(e$message)
-          if (e$message == "Batch size is outside the range of possible values."){
-            output$first_noncon_results_text <- renderText({
-              paste("El tamaño del lote es demasiado pequeC1o.")
+      if (data$batch_data[[data$current_batch]]$first_sample_column == ""){
+        hide("first_sample_study")
+      }
+      else {
+        show("first_sample_study")
+        tryCatch(expr = {
+            sample_size = nrow(data$batch_data[[data$current_batch]]$first_sample)
+            sample_needed <- get_sample_sizes(data$batch_data[[data$current_batch]]$batch_size,"first")
+            second_sample_text <- ""
+            if (data$batch_data[[data$current_batch]]$second_sample_required & data$batch_data[[data$current_batch]]$second_sample_column != ""){
+              second_sample_size = nrow(data$batch_data[[data$current_batch]]$first_sample)
+              second_sample_text <- tags$span("Además, se ha cargado correctamente una muestra adicional de ", tags$span(class = "badge bg-secondary", second_sample_size), " unidades")
+            }
+            output$text_sample_study <- renderText({
+              paste(
+                p("Se ha cargado correctamente una muestra de ", tags$span(class = "badge bg-secondary", sample_size), " unidades. ",second_sample_text),
+                p("Ahora puedes seleccionar la columna de valores de tus datos usando la barra lateral."),
+                p("Puedes explorar los datos que has importado en la pestaña ", tags$span(class = "badge bg-secondary", "Muestras"), "."),
+                p("Una vez estés satisfecho, puedes realizar el análisis usando el botón ", tags$span(class = "badge bg-secondary", "Analizar"), ".")
+              )
             })
-          } else {
-            output$first_noncon_results_text <- renderText({
-              paste("El tamaño de la muestra introducida no corresponde con la necesaria.")
+          },error = function(e){
+            output$text_sample_study <- renderText({
+              p("Ha ocurrido un error al cargar tu muestra, por favor, vuelve a intentarlo.")
             })
           }
-        }
-      )
-    })
+        )
+      }
+    }) %>% bindEvent(gargoyle::watch("first_sample_column"), gargoyle::watch("second_sample_column"))
 
-    results_first_noncon_analysis <- reactive({
-      req(second_noncon_sample())
-      req(input$BatchSize)
-      req(input$LabeledQuantity)
-      req(input$first_noncon_column)
-      tryCatch(expr = {
-      first_noncon_analysis(first_noncon_sample(), input$first_noncon_column, input$LabeledQuantity, input$BatchSize)}
-      ,error = function(e){
-        output$first_noncon_results_table <- NULL
-        output$first_control_plot <- NULL
-        print(e$message)
-        if (e$message == "Batch size is outside the range of possible values."){
-          output$first_noncon_results_text <- renderText({
-            paste("El tamaño del lote es demasiado pequeC1o.")
-          })
-        } else {
-          output$first_noncon_results_text <- renderText({
-            paste("El tamaño de la muestra introducida no corresponde con la necesaria.")
-          })
-        }
-      })
-    })
-
+    # Update results when the analysis is completed
     observe({
-      req(results_first_noncon_analysis())
-
-      results <- results_first_noncon_analysis()
-      if (results$decision == "Accept"){
-        class <- "alert alert-success"
-        msg <- "La muestra ha superado el análisis de no conformidades. El lote se acepta."
-        hide("second_noncon_results_div")
-        hide("second_sample_div")
-      } else if (results$decision == "Reject") {
-        class <- "alert alert-danger"
-        msg <- "La muestra no ha superado el análisis de no conformidades. El lote se rechaza."
-        hide("second_noncon_results_div")
-        hide("second_sample_div")
-      } else {
-        class <- "alert alert-warning"
-        msg <- "La muestra no ha superado el análisis de no conformidades. Es necesario un segundo análisis."
-        show("second_noncon_results_div")
-        show("second_sample_div")
+      if (data$batch_data[[data$current_batch]]$decision == ""){
+        hide("results")
       }
-      output$first_noncon_results_text <- renderText({
-        paste(
-          tags$div(class = class, role = "alert", msg)
-        )
-      })
+      else {
+        show("results")
+        tryCatch(expr = {
+          mean_analisys <- data$batch_data[[data$current_batch]]$mean_analysis
+          first_analysis <- data$batch_data[[data$current_batch]]$first_noncon_analysis
+          second_analysis <- data$batch_data[[data$current_batch]]$second_noncon_analysis
+          general_decision <- data$batch_data[[data$current_batch]]$decision
 
-      get_icon <- function (target_status){
-        icons <- data.frame(status = c("Aceptable", "Non-conformity", "Rejection"),
-                            icon = c("ok-circle", "remove-circle", "ban-circle"))
-        icons %>%
-          filter(.data$status == target_status) %>%
-          pull(icon)
+          result_text <- ""
+          if (data$batch_data[[data$current_batch]]$second_sample_required & data$batch_data[[data$current_batch]]$second_sample_column == "") {
+            sample_needed <- get_sample_sizes(data$batch_data[[data$current_batch]]$batch_size,"second")
+            result_text <- tags$span("El análisis no es concluyente. Debes introducir una segunda muestra de  ", tags$span(class = "badge bg-secondary", sample_needed), " unidades y volver a realizar el análisis.")
+          } else if (general_decision == "Reject") {
+            result_text <- tags$span("El análisis ha concluido. El lote debe ", tags$span(class = "badge bg-secondary", "rechazarse"), " ya que no cumple con los requisitos legales.")
+          } else if (general_decision == "Accept") {
+            result_text <- tags$span("El análisis ha concluido. El lote debe ", tags$span(class = "badge bg-secondary", "aceptarse"), " ya que cumple con los requisitos legales.")
+          }
+          output$text_results <- renderText({
+            paste(
+              result_text, p("Puedes explorar los resultados en detalle en la pestaña ", tags$span(class = "badge bg-secondary", "Análisis de no-conformidades"))
+            )
+          })
+
+          first_analysis_text <- ""
+          second_analysis_text <- ""
+          mean_analisys_text <- ""
+
+          if (first_analysis$decision == "Accept") {
+            first_analysis_text <- tags$li("Análisis de no conformidades:  ", tags$span(class = "badge bg-secondary", "Aceptado"))
+          } else if (first_analysis$decision == "Reject") {
+            first_analysis_text <- tags$li("Análisis de no conformidades:  ", tags$span(class = "badge bg-secondary", "Rechazado"))
+          } else if (first_analysis$decision == "Second analysis") {
+            first_analysis_text <- tags$li("Análisis de no conformidades: ", tags$span(class = "badge bg-secondary", "No concluyente"), " es necesario un análisis adicional.")
+          } else  {
+            first_analysis_text <- tags$li("Análisis de no conformidades: ", tags$span(class = "badge bg-secondary", "Erróneo"), " revisa la muestra introducida.")
+          }
+
+          if (data$batch_data[[data$current_batch]]$second_sample_required) {
+            if (second_analysis$decision == "Accept") {
+              second_analysis_text <- tags$li("Análisis adicional de no conformidades:  ", tags$span(class = "badge bg-secondary", "Aceptado"))
+            } else if (second_analysis$decision == "Reject") {
+              second_analysis_text <- tags$li("Análisis adicional de no conformidades:  ", tags$span(class = "badge bg-secondary", "Rechazado"))
+            } else if (second_analysis$decision == "") {
+              second_analysis_text <- tags$li("Análisis adicional de no conformidades: ", tags$span(class = "badge bg-secondary", "Pendiente"), " introduce una muestra suplementaria y vuelve a ejecutar el análisis.")
+            } else {
+              second_analysis_text <- tags$li("Análisis adicional de no conformidades: ", tags$span(class = "badge bg-secondary", "Erróneo"), " revisa la muestra introducida.")
+            }
+          } else {
+            second_analysis_text <- ""
+          }
+
+          if (mean_analisys$decision == "Accept") {
+            mean_analisys_text <- tags$li("Análisis de la media:  ", tags$span(class = "badge bg-secondary", "Aceptado"))
+          } else if (mean_analisys$decision == "Reject") {
+            mean_analisys_text <- tags$li("Análisis de la media:  ", tags$span(class = "badge bg-secondary", "Rechazado"))
+          } else if (mean_analisys$decision == "N/A") {
+            mean_analisys_text <- tags$li("Análisis de la media:  ", tags$span(class = "badge bg-secondary", "No realizado"))
+          } else {
+            mean_analisys_text <- tags$li("Análisis de de la media: ", tags$span(class = "badge bg-secondary", "Erróneo"), " revisa la muestra introducida.")
+          }
+
+          output$text_detailed_results <- renderText({
+            paste(
+              tags$ul(
+                first_analysis_text,
+                second_analysis_text,
+                mean_analisys_text
+              )
+            )
+          })
+
+        },error = function(e){
+          output$text_results <- renderText({
+            p("Ha ocurrido un error al realizar el análisis, por favor, vuelve a intentarlo.")
+          })
+        }
+        )
       }
-
-      output$first_noncon_results_table <- renderDT({
-        data <- results$df %>%
-          mutate(icon = map_chr(.data$status, ~as.character(icon(get_icon(.x), lib = "glyphicon"))))
-        column_names = names(data)
-        column_names[which(column_names == "icon")] <- ""
-        DT::datatable(data,
-                      options = list(
-                        pageLength = 5
-                      ),
-                      rownames = FALSE,
-                      colnames = column_names,
-                      selection = 'none',
-                      extensions = 'Responsive',
-                      escape = FALSE
-        ) %>% formatStyle("status",
-                          backgroundColor = styleEqual(c("Aceptable", "Non-conformity", "Rejection"), c('green','yellow', 'red'))
-        )
-      },server = FALSE)
-
-      output$first_control_plot = renderPlotly({
-        results$plot
-      })
-
-    })
+    }) %>% bindEvent(gargoyle::watch("analysis_completed"))
   })
 }

@@ -10,18 +10,20 @@
 #' @importFrom gargoyle trigger watch
 mod_samples_ui <- function(id){
   ns <- NS(id)
-  sidebarLayout(
-    sidebarPanel(
-      mod_sidebar_ui(ns("sidebar_1"))
-    ),
-    mainPanel(
-      h2("Muestras"),
-      h3("Primera muestra"),
-      DTOutput(ns("first_sample_table")),
-      hidden(tags$div(
-        id = ns("second_sample_div"),
-        h3("Segunda muestra"),
-        DTOutput(ns("second_sample_table"))))
+  tagList(
+    sidebarLayout(
+      sidebarPanel(
+        mod_sidebar_ui(ns("sidebar_1"))
+      ),
+      mainPanel(
+        h2("Muestras"),
+        h3("Primera muestra"),
+        DTOutput(ns("first_sample_table")),
+        hidden(tags$div(
+          id = ns("second_sample_div"),
+          h3("Segunda muestra"),
+          DTOutput(ns("second_sample_table"))))
+      )
     )
   )
 }
