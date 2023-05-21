@@ -348,7 +348,7 @@ std_dev_estimate <- function(df, col_name) {
 #'
 #' @export
 mean_analysis <- function(df, col_name, batch_size, nominal_quantity) {
-  if (nrow(df) != get_sample_sizes(batch_size, "mean")) {
+  if (nrow(df) < get_sample_sizes(batch_size, "mean")) {
     stop("The number of rows in the input dataframe does not match the required sample size.")
   }
 
@@ -356,8 +356,11 @@ mean_analysis <- function(df, col_name, batch_size, nominal_quantity) {
     stop("The col_name argument must be a column index value of the input dataframe.")
   }
 
-  std_dev <- std_dev_estimate(df, col_name)
-  mean_val <- mean(df[[col_name]])
+  sample_df <- df %>%
+    sample_n(get_sample_sizes(batch_size, "mean"), replace = FALSE)
+
+  std_dev <- std_dev_estimate(sample_df, col_name)
+  mean_val <- mean(sample_df[[col_name]])
   computed_student_dist <- mean_analysis_params %>%
     filter(batch_size >= .data$batch_size_min, batch_size <= .data$batch_size_max) %>%
     pull(.data$computed_student_distribution)

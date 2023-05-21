@@ -102,11 +102,9 @@ mod_overview_server <- function(id, data) {
     # Update results when the analysis is completed
     observe({
       if (data$batch_data[[data$current_batch]]$decision == ""){
-        print("uhu")
         hide("results")
       }
       else {
-        print("uhu2")
         show("results")
         tryCatch(expr = {
           mean_analisys <- data$batch_data[[data$current_batch]]$mean_analysis
