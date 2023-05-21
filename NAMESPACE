@@ -3,6 +3,7 @@
 export(first_noncon_analysis)
 export(get_analysis_plot)
 export(get_limits)
+export(get_mean_analysis_plot)
 export(get_sample_sizes)
 export(mean_analysis)
 export(noncon_limit_value)
