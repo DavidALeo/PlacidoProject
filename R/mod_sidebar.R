@@ -214,7 +214,7 @@ mod_sidebar_server <- function(id, data) {
       }
 
       tryCatch(expr = {
-        data$batch_data[[data$current_batch]]$mean_analysis$decision <- mean_analysis(
+        data$batch_data[[data$current_batch]]$mean_analysis <- mean_analysis(
           req_data$first_sample,
           req_data$first_sample_column,
           req_data$batch_size,
