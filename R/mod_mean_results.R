@@ -15,7 +15,7 @@ mod_mean_results_ui <- function(id){
         mod_sidebar_ui(ns("sidebar_1"))
       ),
       mainPanel(
-        h2("Análisis de no conformidades"),
+        h2("Análisis de la media"),
         htmlOutput(ns("general_results_text")),
         tags$div(plotlyOutput(ns("mean_plot")), class = "plots"),
         htmlOutput(ns("results_explanation_text")),
