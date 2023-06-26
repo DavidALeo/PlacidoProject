@@ -347,8 +347,6 @@ std_dev_estimate <- function(df, col_name) {
 #' result
 #'
 #' @export
-#' @importFrom ggplot2 ggplot geom_ribbon geom_vline geom_line geom_text ggtitle labs aes scale_x_continuous theme_minimal theme unit
-#' @importFrom plotly ggplotly
 mean_analysis <- function(df, col_name, batch_size, nominal_quantity) {
   if (nrow(df) < get_sample_sizes(batch_size, "mean")) {
     stop("The number of rows in the input dataframe does not match the required sample size.")
@@ -377,44 +375,11 @@ mean_analysis <- function(df, col_name, batch_size, nominal_quantity) {
     decision <- "Reject"
   }
 
-  # Create a data frame for the plot
-  #x_values <- seq(nominal_quantity - 4 * std_dev, nominal_quantity + 4 * std_dev, length.out = 100)
-  x_values <- seq(-5, 5, length.out = 100)
-  #y_values <- dnorm(x_values, mean = nominal_quantity, sd = std_dev)
-  y_values <- dt(x_values, df = get_sample_sizes(batch_size, "mean") - 1)
-  plot_data <- data.frame(x = x_values, y = y_values)
-
-  # Create the plot
-  p <- ggplot() +
-    geom_line(data = plot_data, aes(x, y), color = "black") +
-    #geom_vline(xintercept = upper_limit, color = "red", linetype = "dashed", size = 1) +
-    geom_vline(xintercept = -computed_student_dist, color = "red", linetype = "dashed", size = 1) +
-    geom_vline(xintercept = -(nominal_quantity - mean_val) / std_dev, color = "blue", linetype = "dashed", size = 1) +
-    #geom_vline(xintercept = mean_val, color = "blue", linetype = "dashed", size = 1) +
-    #geom_text(aes(x = upper_limit-0.35, label = "Límite"), y = 0.2, color = "red") +
-    #geom_text(aes(x = mean_val+0.75, label = "Media muestral"), y = 0.2, color = "blue") +
-    geom_text(aes(x = -computed_student_dist, label = "Límite"), y = 0.2, color = "red") +
-    geom_text(aes(x = -(nominal_quantity - mean_val) / std_dev, label = "Media muestral"), y = 0.2, color = "blue") +
-    geom_ribbon(data = subset(plot_data, x < -computed_student_dist), aes(x, ymin = 0, ymax = y), fill = "red", alpha = 0.2) +
-    labs(x = "", y = "") +
-    ggtitle("Análisis de la media") +
-    theme_minimal() +
-    theme(
-      panel.background = element_rect(fill = "#F8F8F8"),
-      plot.background = element_rect(fill = "#D8D8D8"),
-      axis.text = element_text(color = "#245953"),
-      axis.title = element_text(color = "#245953"),
-      plot.title = element_text(color = "#245953"),
-      legend.position = "bottom",
-      legend.title = element_blank(),
-      legend.text = element_text(color = "#245953")
-    )
-
   return(list(decision = decision,
               std_dev_estimate = std_dev,
               sample_mean = mean_val,
               mean_limit = upper_limit,
-              plot = ggplotly(p)))
+              plot = get_mean_analysis_plot(batch_size, nominal_quantity, mean_val, std_dev, computed_student_dist)))
 }
 
 #' Create an interactive control chart using sample data and categorical column
@@ -480,13 +445,61 @@ get_analysis_plot <- function(df, value_column, cat_column, target_value, limit,
       axis.text = element_text(color = "#245953"),
       axis.title = element_text(color = "#245953"),
       plot.title = element_text(color = "#245953"),
-      legend.position = "bottom",
+      legend.position = "none",
       legend.title = element_blank(),
       legend.text = element_text(color = "#245953")
     ) +
     scale_fill_manual(values = c("#D8D8D8", "#F8F8F8", "#FFFFFF")) +
     guides(linetype =  "none")
   # Convertir el gráfico a plotly
+  return(ggplotly(p))
+}
+
+#' Create an confidence interval chart
+#'
+#' This function uses sample data, a value column, and a categorical column to create an interactive chart.
+#'
+#' @param batch_size Number representing the batch size
+#' @param nominal_quantity Number representing the target nominal quantity
+#' @param mean_val Number representing the estimated sample mean
+#' @param std_dev Number representing the estimated sample standard deviation
+#' @param computed_student_dist Number representing the computed student dist limit
+#'
+#' @return An interactive control chart using plotly
+#'
+#' @examples
+#' get_mean_analysis_plot(100, 30, 30, 1, 0.503)
+#'
+#' @export
+#' @importFrom ggplot2 ggplot geom_ribbon geom_vline geom_line geom_text ggtitle labs aes scale_x_continuous theme_minimal theme unit
+#' @importFrom plotly ggplotly
+get_mean_analysis_plot <- function(batch_size, nominal_quantity, mean_val, std_dev, computed_student_dist) {
+  # Create a data frame for the plot
+  x_values <- seq(-5, 5, length.out = 100)
+  y_values <- dt(x_values, df = get_sample_sizes(batch_size, "mean") - 1)
+  plot_data <- data.frame(x = x_values, y = y_values)
+
+  # Create the plot
+  p <- ggplot() +
+    geom_line(data = plot_data, aes(x_values, y_values), color = "black") +
+    geom_vline(xintercept = -computed_student_dist, color = "red", linetype = "dashed", size = 1) +
+    geom_vline(xintercept = -(nominal_quantity - mean_val) / std_dev, color = "blue", linetype = "dashed", size = 1) +
+    geom_text(aes(x = -computed_student_dist, label = "Límite"), y = 0.2, color = "red") +
+    geom_text(aes(x = -(nominal_quantity - mean_val) / std_dev, label = "Media muestral"), y = 0.2, color = "blue") +
+    geom_ribbon(data = subset(plot_data, x < -computed_student_dist), aes(x, ymin = 0, ymax = y), fill = "red", alpha = 0.2) +
+    labs(x = "", y = "") +
+    ggtitle("Análisis de la media") +
+    theme_minimal() +
+    theme(
+      panel.background = element_rect(fill = "#F8F8F8"),
+      plot.background = element_rect(fill = "#D8D8D8"),
+      axis.text = element_text(color = "#245953"),
+      axis.title = element_text(color = "#245953"),
+      plot.title = element_text(color = "#245953"),
+      legend.position = "bottom",
+      legend.title = element_blank(),
+      legend.text = element_text(color = "#245953")
+    )
   return(ggplotly(p))
 }
 

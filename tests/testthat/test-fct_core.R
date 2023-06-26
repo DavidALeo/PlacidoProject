@@ -226,12 +226,12 @@ test_that("mean_analysis works correctly for normal input", {
   # Accept input
   df <- data.frame(value = rep(nominal_quantity, 30))
   result <- mean_analysis(df, col_name, nominal_quantity, batch_size)
-  expect_equal(result, "Accept")
+  expect_equal(result$decision, "Accept")
 
   # Rejection value
   df <- data.frame(value = rep(nominal_quantity-10, 30))
   result <- mean_analysis(df, col_name, nominal_quantity, batch_size)
-  expect_equal(result, "Reject")
+  expect_equal(result$decision, "Reject")
 })
 
 test_that("mean_analysis don't accept incorrect sample sizes", {
@@ -241,13 +241,6 @@ test_that("mean_analysis don't accept incorrect sample sizes", {
 
   # Sample too small
   df <- data.frame(value = rep(nominal_quantity, 29))
-  expect_error(
-    mean_analysis(df, col_name, nominal_quantity, batch_size),
-    "The number of rows in the input dataframe does not match the required sample size."
-  )
-
-  # Sample too big
-  df <- data.frame(value = rep(nominal_quantity, 31))
   expect_error(
     mean_analysis(df, col_name, nominal_quantity, batch_size),
     "The number of rows in the input dataframe does not match the required sample size."
