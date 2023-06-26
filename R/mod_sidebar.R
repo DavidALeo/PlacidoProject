@@ -12,8 +12,8 @@
 mod_sidebar_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    h2("Resumen"),
-    "Datos necesarios para continuar:",
+    h2("Datos de partida"),
+    "Introduzca la información necesaria y pulsa el botón Analizar",
     hidden(selectInput(
       inputId = ns("analysis_select"),
       label = "Selecciona un análisis",
