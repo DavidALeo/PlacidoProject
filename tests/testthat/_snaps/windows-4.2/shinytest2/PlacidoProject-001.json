@@ -44,7 +44,9 @@
     "samples_1-sidebar_1-first_sample": null,
     "samples_1-sidebar_1-first_sample_column": "Volumen",
     "samples_1-sidebar_1-second_sample": null,
-    "samples_1-sidebar_1-second_sample_column": ""
+    "samples_1-sidebar_1-second_sample_column": "",
+    "visual_settings-high_contrast_theme": 0,
+    "visual_settings-standard_theme": 0
   },
   "output": {
     "overview_1-text_detailed_results": "<ul>\n  <li>\n    Análisis de no conformidades:  \n    <span class=\"badge bg-secondary\">Aceptado<\/span>\n  <\/li>\n  \n  <li>\n    Análisis de la media:  \n    <span class=\"badge bg-secondary\">Aceptado<\/span>\n  <\/li>\n<\/ul>",
