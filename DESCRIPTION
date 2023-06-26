@@ -3,7 +3,7 @@ Title: Shiny Application for Quality Control Calculations Based on Spanish
     Royal Decree 1801/2008
 Version: 0.0.0.9000
 Authors@R: 
-    person("David A.", "Leo", , "david.leoacedo@gmail.com", role = c("cre", "aut"))
+    c(person("David A.", "Leo", , "david.leoacedo@gmail.com", role = c("cre", "aut")), person("Emilio", "López Cano", , "emilio.lopez@urjc.es", role = c("aut")))
 Description: PlacidoApp is a package that provides a Shiny application for
     performing quality control calculations in accordance with Spanish
     Royal Decree 1801/2008, dated November 3rd. This regulation

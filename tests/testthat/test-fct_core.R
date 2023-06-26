@@ -1,3 +1,5 @@
+library(PlacidoApp)
+
 test_that("get_sample_sizes returns correct results", {
   expect_equal(get_sample_sizes(300, "first"), 30)
   expect_equal(get_sample_sizes(1500, "first"), 50)
