@@ -70,8 +70,8 @@ custom_theme <- function() {
   theme <- bs_theme(
     version = 5,
     bg = "#D8D8D8",
-    fg = "#245953",
-    primary = "#408E91",
+    fg = "#1E453E",
+    primary = "#40B9BD",
     secondary = "#E49393",
     base_font = font_collection(
       font_google(family = "Nunito Sans"),
@@ -89,7 +89,7 @@ custom_theme <- function() {
   )
 
   theme <- bs_add_variables(theme, "container-bg" = "#FFFFFF", "container-border-color" = "#E0E0E0", "control-border-color" = "#CCCCCC")
-  theme <- bs_add_variables(theme, "navbar-bg" = "#245953", "navbar-fg" = "#FFFFFF", "sidebar-bg" = "#408E91", "sidebar-fg" = "#FFFFFF")
+  theme <- bs_add_variables(theme, "navbar-bg" = "#1E453E", "navbar-fg" = "#FFFFFF", "sidebar-bg" = "#40B9BD", "sidebar-fg" = "#FFFFFF")
 
   theme <- bs_add_rules(theme, ".container { background-color: $container-bg; border-color: $container-border-color; }")
   theme <- bs_add_rules(theme, ".navbar { background-color: $navbar-bg; color: $navbar-fg; position: fixed; top: 0; left: 0; width: 100%; z-index: 100; }")

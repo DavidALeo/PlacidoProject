@@ -445,7 +445,7 @@ get_analysis_plot <- function(df, value_column, cat_column, target_value, limit,
       axis.text = element_text(color = "#245953"),
       axis.title = element_text(color = "#245953"),
       plot.title = element_text(color = "#245953"),
-      legend.position = "bottom",
+      legend.position = "none",
       legend.title = element_blank(),
       legend.text = element_text(color = "#245953")
     ) +
