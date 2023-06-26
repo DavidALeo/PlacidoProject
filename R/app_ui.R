@@ -21,6 +21,7 @@ app_ui <- function(request) {
         tabPanel(title = "Análisis de la media",mod_mean_results_ui("mean_analysis_results_page")),
         navbarMenu(
           title = "Más",
+          tabPanel(title = "Datos de ejemplo", mod_examples_ui("examples")),
           tabPanel(title = "Ajustes visuales", mod_visual_settings_ui("visual_settings")),
           "----",
           tabPanel(title = "Más información", mod_about_ui("about"))

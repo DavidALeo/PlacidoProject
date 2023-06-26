@@ -56,3 +56,17 @@
 #' \item{computed_student_distribution}{Student distribution computed for the corresponding sample sizes}
 #' }
 "mean_analysis_params"
+
+#' Sample dataset
+#'
+#' A dataset containing an example to run the package.
+#'
+#' @format A data frame with 2 rows and 4 variables:
+#' \describe{
+#' \item{Id}{Id of the package}
+#' \item{Paquete}{Package}
+#' \item{Volumen}{Effective quantity of the package}
+#' \item{Fecha}{Date of the measurement}
+#' }
+"sample_dataset"
+
