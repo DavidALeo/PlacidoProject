@@ -31,5 +31,6 @@ app_server <- function(input, output, session) {
   mod_samples_server("samples_1", data = data)
   mod_noncon_results_server("noncon_analysis_results_page", data = data)
   mod_mean_results_server("mean_analysis_results_page", data = data)
+  mod_examples_server("examples", data = data)
   mod_visual_settings_server("visual_settings")
 }

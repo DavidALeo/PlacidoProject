@@ -30,7 +30,8 @@ Imports:
     plotly,
     purrr,
     shiny (>= 1.7.4),
-    shinyjs
+    shinyjs,
+    rlang
 Suggests: 
     knitr,
     spelling,
