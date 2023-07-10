@@ -23,8 +23,9 @@ mod_overview_ui <- function(id) {
     ),
     mainPanel(
       h2("Resumen"),
-      p("Para comenzar con el análisis, selecciona un tamaño de muestra y la cantidad nominal de tus envases."),
+      p("Para comenzar con el an\u00e1lisis, selecciona un tama\u00f1o de muestra y la cantidad nominal de tus envases."),
       htmlOutput(ns("text_sample_needed")),
+      htmlOutput(ns("analysis_limits")),
       p("Ahora puedes cargar una nueva muestra en la barra lateral."),
       hidden(tags$div(
         id = ns("first_sample_study"),
@@ -57,12 +58,49 @@ mod_overview_server <- function(id, data) {
         sample_size <- get_sample_sizes(data$batch_data[[data$current_batch]]$batch_size,"first")
         output$text_sample_needed <- renderText({
           paste(
-            "Para un tamaño de lote de ", tags$span(class = "badge bg-secondary", data$batch_data[[data$current_batch]]$batch_size), "unidades, corresponde un tamaño de muestra inicial de ",
+            "Para un tama\u00f1o de lote de ", tags$span(class = "badge bg-secondary", data$batch_data[[data$current_batch]]$batch_size), "unidades, corresponde un tama\u00f1o de muestra inicial de ",
             tags$span(class = "badge bg-secondary", sample_size)
           )
-        })},error = function(e){
+        })
+        limits <- get_limits(data$batch_data[[data$current_batch]]$batch_size, "first")
+        acceptance_limit <- limits$analysis_acceptance
+        rejection_limit <- limits$analysis_rejection
+
+        noncon_thres <- noncon_thres_value(data$batch_data[[data$current_batch]]$labeled_quantity)
+        noncon_limit <- noncon_limit_value(data$batch_data[[data$current_batch]]$labeled_quantity)
+        output$analysis_limits <- renderText({
+          paste0(
+            tags$p("Para que una muestra con tama\u00f1o de lote de ",
+                   tags$span(class = "badge bg-secondary", data$batch_data[[data$current_batch]]$batch_size),
+                   "unidades y una cantidad nominal de ",
+                   tags$span(class = "badge bg-secondary", data$batch_data[[data$current_batch]]$labeled_quantity),
+                   "pase el an\u00e1lisis de no-conformidades debe cumplir:"
+            ),
+            tags$ul(
+              tags$li("Ning\u00fan elemento de la muestra tendr\u00e1 menos de ", tags$span(class = "badge bg-secondary", noncon_limit), " en peso o volumen."),
+              tags$li("No habr\u00e1 mas de ", tags$span(class = "badge bg-secondary", rejection_limit),
+                      " envases con una cantidad superior a ",
+                      tags$span(class = "badge bg-secondary", noncon_limit),
+                      "pero inferior a",
+                      tags$span(class = "badge bg-secondary", noncon_thres),
+              ),
+              tags$li("Si hay entre ",
+                      tags$span(class = "badge bg-secondary", rejection_limit),
+                      " y ",
+                      tags$span(class = "badge bg-secondary", acceptance_limit),
+                      " envases con una cantidad  superior a ",
+                      tags$span(class = "badge bg-secondary", noncon_limit),
+                      "pero inferior a",
+                      tags$span(class = "badge bg-secondary", noncon_thres),
+                      " se realizar\u00e1 un segundo muestreo confirmatorio"
+              ),
+            )
+          )
+        })
+        },error = function(e){
+          print(e)
                  output$text_sample_needed <- renderText({
-                   paste("El tamaño del lote es demasiado pequeño para realizar un análisis estadístico. Debes medir todas las unidades.")
+                   paste("El tama\u00f1o del lote es demasiado peque\u00f1o para realizar un an\u00e1lisis estad\u00edstico. Debes medir todas las unidades.")
                  })
             }
       )
@@ -81,14 +119,14 @@ mod_overview_server <- function(id, data) {
             second_sample_text <- ""
             if (data$batch_data[[data$current_batch]]$second_sample_required & data$batch_data[[data$current_batch]]$second_sample_column != ""){
               second_sample_size = nrow(data$batch_data[[data$current_batch]]$first_sample)
-              second_sample_text <- tags$span("Además, se ha cargado correctamente una muestra adicional de ", tags$span(class = "badge bg-secondary", second_sample_size), " unidades")
+              second_sample_text <- tags$span("Adem\u00e1s, se ha cargado correctamente una muestra adicional de ", tags$span(class = "badge bg-secondary", second_sample_size), " unidades")
             }
             output$text_sample_study <- renderText({
               paste(
                 p("Se ha cargado correctamente una muestra de ", tags$span(class = "badge bg-secondary", sample_size), " unidades. ",second_sample_text),
                 p("Ahora puedes seleccionar la columna de valores de tus datos usando la barra lateral."),
-                p("Puedes explorar los datos que has importado en la pestaña ", tags$span(class = "badge bg-secondary", "Muestras"), "."),
-                p("Una vez estés satisfecho, puedes realizar el análisis usando el botón ", tags$span(class = "badge bg-secondary", "Analizar"), ".")
+                p("Puedes explorar los datos que has importado en la pesta\u00f1a ", tags$span(class = "badge bg-secondary", "Muestras"), "."),
+                p("Una vez est\u00e9s satisfecho, puedes realizar el an\u00e1lisis usando el bot\u00f3n ", tags$span(class = "badge bg-secondary", "Analizar"), ".")
               )
             })
           },error = function(e){
@@ -116,15 +154,15 @@ mod_overview_server <- function(id, data) {
           result_text <- ""
           if (data$batch_data[[data$current_batch]]$second_sample_required & data$batch_data[[data$current_batch]]$second_sample_column == "") {
             sample_needed <- get_sample_sizes(data$batch_data[[data$current_batch]]$batch_size,"second")
-            result_text <- tags$span("El análisis no es concluyente. Debes introducir una segunda muestra de  ", tags$span(class = "badge bg-secondary", sample_needed), " unidades y volver a realizar el análisis.")
+            result_text <- tags$span("El an\u00e1lisis no es concluyente. Debes introducir una segunda muestra de  ", tags$span(class = "badge bg-secondary", sample_needed), " unidades y volver a realizar el an\u00e1lisis.")
           } else if (general_decision == "Reject") {
-            result_text <- tags$span("El análisis ha concluido. El lote debe ", tags$span(class = "badge bg-secondary", "rechazarse"), " ya que no cumple con los requisitos legales.")
+            result_text <- tags$span("El an\u00e1lisis ha concluido. El lote debe ", tags$span(class = "badge bg-secondary", "rechazarse"), " ya que no cumple con los requisitos legales.")
           } else if (general_decision == "Accept") {
-            result_text <- tags$span("El análisis ha concluido. El lote debe ", tags$span(class = "badge bg-secondary", "aceptarse"), " ya que cumple con los requisitos legales.")
+            result_text <- tags$span("El an\u00e1lisis ha concluido. El lote debe ", tags$span(class = "badge bg-secondary", "aceptarse"), " ya que cumple con los requisitos legales.")
           }
           output$text_results <- renderText({
             paste(
-              result_text, p("Puedes explorar los resultados en detalle en la pestaña ", tags$span(class = "badge bg-secondary", "Análisis de no-conformidades"))
+              result_text, p("Puedes explorar los resultados en detalle en la pesta\u00f1a ", tags$span(class = "badge bg-secondary", "An\u00e1lisis de no-conformidades"))
             )
           })
 
@@ -133,37 +171,37 @@ mod_overview_server <- function(id, data) {
           mean_analisys_text <- ""
 
           if (first_analysis$decision == "Accept") {
-            first_analysis_text <- tags$li("Análisis de no conformidades:  ", tags$span(class = "badge bg-secondary", "Aceptado"))
+            first_analysis_text <- tags$li("An\u00e1lisis de no conformidades:  ", tags$span(class = "badge bg-secondary", "Aceptado"))
           } else if (first_analysis$decision == "Reject") {
-            first_analysis_text <- tags$li("Análisis de no conformidades:  ", tags$span(class = "badge bg-secondary", "Rechazado"))
+            first_analysis_text <- tags$li("An\u00e1lisis de no conformidades:  ", tags$span(class = "badge bg-secondary", "Rechazado"))
           } else if (first_analysis$decision == "Second analysis") {
-            first_analysis_text <- tags$li("Análisis de no conformidades: ", tags$span(class = "badge bg-secondary", "No concluyente"), " es necesario un análisis adicional.")
+            first_analysis_text <- tags$li("An\u00e1lisis de no conformidades: ", tags$span(class = "badge bg-secondary", "No concluyente"), " es necesario un an\u00e1lisis adicional.")
           } else  {
-            first_analysis_text <- tags$li("Análisis de no conformidades: ", tags$span(class = "badge bg-secondary", "Erróneo"), " revisa la muestra introducida.")
+            first_analysis_text <- tags$li("An\u00e1lisis de no conformidades: ", tags$span(class = "badge bg-secondary", "Err\u00f3neo"), " revisa la muestra introducida.")
           }
 
           if (data$batch_data[[data$current_batch]]$second_sample_required) {
             if (second_analysis$decision == "Accept") {
-              second_analysis_text <- tags$li("Análisis adicional de no conformidades:  ", tags$span(class = "badge bg-secondary", "Aceptado"))
+              second_analysis_text <- tags$li("An\u00e1lisis adicional de no conformidades:  ", tags$span(class = "badge bg-secondary", "Aceptado"))
             } else if (second_analysis$decision == "Reject") {
-              second_analysis_text <- tags$li("Análisis adicional de no conformidades:  ", tags$span(class = "badge bg-secondary", "Rechazado"))
+              second_analysis_text <- tags$li("An\u00e1lisis adicional de no conformidades:  ", tags$span(class = "badge bg-secondary", "Rechazado"))
             } else if (second_analysis$decision == "") {
-              second_analysis_text <- tags$li("Análisis adicional de no conformidades: ", tags$span(class = "badge bg-secondary", "Pendiente"), " introduce una muestra suplementaria y vuelve a ejecutar el análisis.")
+              second_analysis_text <- tags$li("An\u00e1lisis adicional de no conformidades: ", tags$span(class = "badge bg-secondary", "Pendiente"), " introduce una muestra suplementaria y vuelve a ejecutar el an\u00e1lisis.")
             } else {
-              second_analysis_text <- tags$li("Análisis adicional de no conformidades: ", tags$span(class = "badge bg-secondary", "Erróneo"), " revisa la muestra introducida.")
+              second_analysis_text <- tags$li("An\u00e1lisis adicional de no conformidades: ", tags$span(class = "badge bg-secondary", "Err\u00f3neo"), " revisa la muestra introducida.")
             }
           } else {
             second_analysis_text <- ""
           }
 
           if (mean_analisys$decision == "Accept") {
-            mean_analisys_text <- tags$li("Análisis de la media:  ", tags$span(class = "badge bg-secondary", "Aceptado"))
+            mean_analisys_text <- tags$li("An\u00e1lisis de la media:  ", tags$span(class = "badge bg-secondary", "Aceptado"))
           } else if (mean_analisys$decision == "Reject") {
-            mean_analisys_text <- tags$li("Análisis de la media:  ", tags$span(class = "badge bg-secondary", "Rechazado"))
+            mean_analisys_text <- tags$li("An\u00e1lisis de la media:  ", tags$span(class = "badge bg-secondary", "Rechazado"))
           } else if (mean_analisys$decision == "N/A") {
-            mean_analisys_text <- tags$li("Análisis de la media:  ", tags$span(class = "badge bg-secondary", "No realizado"))
+            mean_analisys_text <- tags$li("An\u00e1lisis de la media:  ", tags$span(class = "badge bg-secondary", "No realizado"))
           } else {
-            mean_analisys_text <- tags$li("Análisis de de la media: ", tags$span(class = "badge bg-secondary", "Erróneo"), " revisa la muestra introducida.")
+            mean_analisys_text <- tags$li("An\u00e1lisis de de la media: ", tags$span(class = "badge bg-secondary", "Err\u00f3neo"), " revisa la muestra introducida.")
           }
 
           output$text_detailed_results <- renderText({
@@ -178,7 +216,7 @@ mod_overview_server <- function(id, data) {
 
         },error = function(e){
           output$text_results <- renderText({
-            p("Ha ocurrido un error al realizar el análisis, por favor, vuelve a intentarlo.")
+            p("Ha ocurrido un error al realizar el an\u00e1lisis, por favor, vuelve a intentarlo.")
           })
         }
         )
@@ -186,8 +224,9 @@ mod_overview_server <- function(id, data) {
     }) %>% bindEvent(gargoyle::watch("analysis_completed"))
 
     observe({
-      # Habilitar el botón
-      if (data$batch_data[[data$current_batch]]$mean_analysis$decision != "") {
+      # Habilitar el bot\u00f3n
+      if (data$batch_data[[data$current_batch]]$mean_analysis$decision != "" &&
+          data$batch_data[[data$current_batch]]$mean_analysis$decision != "ERROR") {
         shinyjs::enable("report")
       } else {
         shinyjs::disable("report")

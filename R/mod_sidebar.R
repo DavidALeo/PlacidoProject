@@ -13,15 +13,15 @@ mod_sidebar_ui <- function(id) {
   ns <- NS(id)
   tagList(
     h2("Datos de partida"),
-    "Introduzca la información necesaria y pulsa el botón Analizar",
+    "Introduzca la informaci\u00f3n necesaria y pulsa el bot\u00f3n Analizar",
     hidden(selectInput(
       inputId = ns("analysis_select"),
-      label = "Selecciona un análisis",
-      choices = c() # inicialmente vacío
+      label = "Selecciona un an\u00e1lisis",
+      choices = c() # inicialmente vac\u00edo
     )),
     numericInput(
       inputId = ns("BatchSize"),
-      label = "Tamaño del lote",
+      label = "Tama\u00f1o del lote",
       value = 100
     ),
     numericInput(

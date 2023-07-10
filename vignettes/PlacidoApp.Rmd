@@ -17,3 +17,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(PlacidoApp)
 ```
+
+# Heading 1
+## Heading 2
+### Heading 3

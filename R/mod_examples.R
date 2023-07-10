@@ -12,18 +12,18 @@ mod_examples_ui <- function(id){
   tagList(
 
     h2("Cargar Datos de Ejemplo"),
-    p("Aquí puedes cargar tres conjuntos de datos de ejemplo, cada uno con diferentes resultados."),
+    p("Aqu\u00ed puedes cargar tres conjuntos de datos de ejemplo, cada uno con diferentes resultados."),
 
     h3("Conjunto de datos 1 (Rechazado)"),
-    p("El análisis de este conjunto de datos contiene demasiadas no conformidades y se rechazará."),
+    p("El an\u00e1lisis de este conjunto de datos contiene demasiadas no conformidades y se rechazar\u00e1."),
     actionButton(ns("load_fail"), "Cargar Conjunto de Datos 1"),
 
-    h3("Conjunto de datos 2 (Requiere Segundo Análisis)"),
-    p("Este conjunto de datos requerirá un análisis adicional."),
+    h3("Conjunto de datos 2 (Requiere Segundo An\u00e1lisis)"),
+    p("Este conjunto de datos requerir\u00e1 un an\u00e1lisis adicional."),
     actionButton(ns("load_second_analysis"), "Cargar Conjunto de Datos 2"),
 
     h3("Conjunto de datos 3 (Aceptado)"),
-    p("El análisis de este conjunto de datos será suficiente para aceptar el lote."),
+    p("El an\u00e1lisis de este conjunto de datos ser\u00e1 suficiente para aceptar el lote."),
     actionButton(ns("load_accepted"), "Cargar Conjunto de Datos 3")
   )
 }
