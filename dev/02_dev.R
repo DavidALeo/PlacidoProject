@@ -69,3 +69,30 @@ usethis::use_github_action_check_standard()
 usethis::use_github_action_check_full()
 # Add action for PR
 usethis::use_github_action_pr_commands()
+
+# Fix non ASCII Characters
+
+fix_non_ascii_characters <- function() {
+  convertir_a_unicode <- function(texto) {
+    # Vector con caracteres a convertir
+    special_characters <- c("á", "é", "í", "ó", "ú", "Á", "É", "Í", "Ó", "Ú", "ñ", "Ñ", "ü", "Ü")
+
+    for (i in 1:length(special_characters)) {
+      texto <- gsub(special_characters[i], paste0("\\", stringi::stri_escape_unicode(special_characters[i])), texto)
+    }
+
+    return(texto)
+
+
+  }
+
+  files <- list.files(path = "R", pattern = "*.R")
+  for (file in files) {
+
+    content <- readLines(paste0("R/", file))
+
+    fixed_content <- convertir_a_unicode(content)
+
+    writeLines(fixed_content, paste0("R/", file))
+  }
+}

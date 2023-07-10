@@ -414,31 +414,29 @@ mean_analysis <- function(df, col_name, batch_size, nominal_quantity) {
 #' @importFrom ggplot2 ggplot geom_point geom_line geom_hline ggtitle labs aes_string aes theme element_text element_rect element_blank guides guide_legend scale_color_manual scale_fill_manual
 #' @importFrom plotly ggplotly
 get_analysis_plot <- function(df, value_column, cat_column, target_value, limit, hard_limit) {
-  # Crear un nuevo marco de datos con una sola fila para las líneas horizontales
   lines_df <- data.frame(
     value_column = c(target_value, limit, hard_limit),
-    names_column = c("Valor objetivo", "Límite", "Límite estricto")
+    names_column = c("Valor objetivo", "L\u00edmite", "L\u00edmite estricto")
   )
 
   unique_values <- unique(df[[cat_column]])
   labels <- ifelse(unique_values == "Aceptable", "Aceptable",
                    ifelse(unique_values == "Non-conformity", "No conformidad",
                           ifelse(unique_values == "Rejection","Inaceptable","")))
-  labels <- c(c("Valor objetivo", "Límite", "Límite estricto"), labels)
+  labels <- c(c("Valor objetivo", "Limite", "Limite estricto"), labels)
 
 
-  # Crear el gráfico de control con ggplot2 utilizando el nuevo marco de datos
   p <- ggplot(df, aes_string(x = seq_along(df[[1]]), y = value_column)) +
     geom_point(aes_string(color = cat_column)) +
     geom_hline(data = lines_df, aes(yintercept = value_column, color = names_column, linetype = "solid")) +
     scale_color_manual("", values = c("Valor objetivo" = "#5DADE2",
-                          "Límite" = "#F4D03F",
-                          "Límite estricto" = "#CD6155",
+                          "Limite" = "#F4D03F",
+                          "Limite estricto" = "#CD6155",
                           "Aceptable" = "#245953",
                           "Non-conformity"= "#408E91",
                           "Rejection"= "#E49393"), labels  = labels) +
     labs(x = "Muestra", y = "Valor") +
-    ggtitle("Gráfico de Control") +
+    ggtitle("Gr\u00e1fico de Control") +
     theme(
       panel.background = element_rect(fill = "#F8F8F8"),
       plot.background = element_rect(fill = "#D8D8D8"),
@@ -451,7 +449,7 @@ get_analysis_plot <- function(df, value_column, cat_column, target_value, limit,
     ) +
     scale_fill_manual(values = c("#D8D8D8", "#F8F8F8", "#FFFFFF")) +
     guides(linetype =  "none")
-  # Convertir el gráfico a plotly
+  # Convertir el gr\u00e1fico a plotly
   return(ggplotly(p))
 }
 
@@ -484,11 +482,11 @@ get_mean_analysis_plot <- function(batch_size, nominal_quantity, mean_val, std_d
     geom_line(data = plot_data, aes(x_values, y_values), color = "black") +
     geom_vline(xintercept = -computed_student_dist, color = "red", linetype = "dashed", size = 1) +
     geom_vline(xintercept = -(nominal_quantity - mean_val) / std_dev, color = "blue", linetype = "dashed", size = 1) +
-    geom_text(aes(x = -computed_student_dist, label = "Límite"), y = 0.2, color = "red") +
+    geom_text(aes(x = -computed_student_dist, label = "L\u00edmite"), y = 0.2, color = "red") +
     geom_text(aes(x = -(nominal_quantity - mean_val) / std_dev, label = "Media muestral"), y = 0.2, color = "blue") +
     geom_ribbon(data = subset(plot_data, x < -computed_student_dist), aes(x, ymin = 0, ymax = y), fill = "red", alpha = 0.2) +
     labs(x = "", y = "") +
-    ggtitle("Análisis de la media") +
+    ggtitle("An\u00e1lisis de la media") +
     theme_minimal() +
     theme(
       panel.background = element_rect(fill = "#F8F8F8"),

@@ -10,9 +10,9 @@
 mod_visual_settings_ui <- function(id){
   ns <- NS(id)
   tagList(
-    h2("Configuraciones de Visualización"),
-    p("Puedes cambiar el tema visual de la aplicación para que se adapte mejor a tus necesidades."),
-    actionButton(ns("standard_theme"), "Tema Estándar"),
+    h2("Configuraciones de Visualizaci\u00f3n"),
+    p("Puedes cambiar el tema visual de la aplicaci\u00f3n para que se adapte mejor a tus necesidades."),
+    actionButton(ns("standard_theme"), "Tema Est\u00e1ndar"),
     actionButton(ns("high_contrast_theme"), "Tema de Alto Contraste")
   )
 }

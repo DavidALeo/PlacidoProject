@@ -17,14 +17,14 @@ app_ui <- function(request) {
         title = "PlacidoApp",
         tabPanel(title = "Resumen",mod_overview_ui("overview_1")),
         tabPanel(title = "Muestras",mod_samples_ui("samples_1")),
-        tabPanel(title = "Análisis de no-conformidades",mod_noncon_results_ui("noncon_analysis_results_page")),
-        tabPanel(title = "Análisis de la media",mod_mean_results_ui("mean_analysis_results_page")),
+        tabPanel(title = "An\u00e1lisis de no-conformidades",mod_noncon_results_ui("noncon_analysis_results_page")),
+        tabPanel(title = "An\u00e1lisis de la media",mod_mean_results_ui("mean_analysis_results_page")),
         navbarMenu(
-          title = "Más",
+          title = "M\u00e1s",
           tabPanel(title = "Datos de ejemplo", mod_examples_ui("examples")),
           tabPanel(title = "Ajustes visuales", mod_visual_settings_ui("visual_settings")),
           "----",
-          tabPanel(title = "Más información", mod_about_ui("about"))
+          tabPanel(title = "M\u00e1s informaci\u00f3n", mod_about_ui("about"))
         ),
         windowTitle = "PlacidoApp",
         theme = base_theme()
